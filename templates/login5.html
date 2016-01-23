@@ -1,0 +1,77 @@
+<!-- https://developers.google.com/identity/sign-in/web/server-side-flow -->
+<!-- The top of file index.html -->
+<html itemscope itemtype="http://schema.org/Article">
+<head>
+  <!-- BEGIN Pre-requisites -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+  </script>
+  <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer>
+  </script>
+  <!-- END Pre-requisites -->
+  <!-- Continuing the <head> section -->
+  <script>
+    function start() {
+      gapi.load('auth2', function() {
+        auth2 = gapi.auth2.init({
+          client_id: '65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com',
+          scope:''
+          // Scopes to request in addition to 'profile' and 'email'
+          //scope: 'additional_scope'
+        });
+      });
+    }
+  </script>
+</head>
+<body>
+  <!-- Add where you want your sign-in button to render -->
+<!-- Use an image that follows the branding guidelines in a real app -->
+<div class='g-signin2' id="signinButton">Sign in with Google</div>
+<script>
+  $('#signinButton').click(function() {
+    // signInCallback defined in step 6.
+    auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(signInCallback);
+  });
+</script>
+<div id="result"></div>
+<!-- Last part of BODY element in file index.html -->
+<script>
+function signInCallback(authResult) {
+  if (authResult['code']) {
+  	$.ajax({
+      type: 'POST',
+      url: '/gconnect?state={{STATE}}',//server taking the one-time code from client
+      processData: false,//not to process into string
+      data: authResult['code'],//:what is sent to the server is the one-time use code
+      contentType: 'application/octet-stream; charset=utf-8',
+      success: function(result) { //if 200 from server...
+        // Handle or verify the server response if necessary, pass to the client
+        	if (result) { //result: additional info from server
+	          	$('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+	         	setTimeout(function() {
+	          		window.location.href = "/restaurants/";
+	         	}, 4000);
+	      	} else if (authResult['error']) {
+	    		console.log('There was an error: ' + authResult['error']);//report the error from google
+	  		} else {
+	        	$('#result').html('Failed to make a server-side call. Check your configuration and console.');// if no response from server to the callback
+	        }
+    	}//success
+  	});//ajax
+  }
+
+    // // Send the code to the server
+    // $.ajax({
+    //   type: 'POST',
+    //   url: 'http://example.com/storeauthcode',
+    //   contentType: 'application/octet-stream; charset=utf-8',
+    //   success: function(result) {
+    //     // Handle or verify the server response.
+    //   },
+    //   processData: false,
+    //   data: authResult['code']
+    // });
+
+}
+</script>
+</body>
+</html>

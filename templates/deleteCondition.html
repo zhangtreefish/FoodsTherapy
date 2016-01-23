@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %} Delete Menu {% endblock %}
+{% block head %}
+    {{super()}}
+{% endblock %}
+{% block content %}
+	<body>
+		<section class='panel panel-default'>
+	   		<div class='panel-heading'>
+	   			<h3>Are you sure you want to delete condition {{condition.name.title()}}?
+	   		    </h3>
+	   		</div>
+	   		<div class='panel-body'>
+				<form action='{{url_for('conditionDelete', condition_id=condition_id)}}' method='post' class='panel-body'>
+					<input class='btn btn-danger' type="submit" name="delete" value="DELETE">
+	        		<button class='btn btn-success' type="submit" name="cancel" value="CANCEL">
+	        			<a href={{url_for('showConditions')}}> CANCEL</a>
+	        		</button>
+	        	</form>
+	        </div>
+        </section>
+    </body>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %} Physiological Conditions {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
+	<body>
+		<h1> All Conditions </h1>
+
+		{% for i in conditions %}
+			<section class='panel panel-default'>
+				<p class='panel-heading'>
+					<p>{{i.name}}</p>
+					<p>{{i.signs_and_symptoms}}</p>
+				<div class='panel-body'>
+					<div class='btn-group' role='group'>
+						<button type='button' class='btn btn-success'><a href={{url_for('conditionMenus',condition_id=i.id)}}> Therapeutic Menus for the Condition </a></button>
+					</div>
+					<hr>
+				</div>
+			</section>
+		{% endfor %}
+	</body>
+{% endblock %}
+

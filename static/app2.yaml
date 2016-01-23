@@ -1,0 +1,3 @@
+- url: /favicon.ico
+  static_files: media/img/favicon.ico
+  upload: media/img/favicon.ico

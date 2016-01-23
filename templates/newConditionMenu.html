@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %} New Menu {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
+	<div>
+		<h1> New Menu for {{condition.name.title()}} </h1> <!--TODO: expression not working anymore-->
+		<form action='{{url_for('newConditionMenu', condition_id=condition_id )}}' method='post'>
+			<div class='form-group'>
+				<label for = "newCourse">Select Course</label>
+				<select role="menu" name="newCourse" class="form-control">
+					<option> Fruit </option>
+					<option> Vegetable </option>
+					<option> Grain </option>
+					<option> Beans and Legumes </option>
+					<option> Meats </option>
+					<option> Seafood </option>
+					<option> One Complete Meal </option>
+				</select>
+			</div>
+			<input type='text' class='btn btn-default' name='newName' placeholder='menu.name'>
+			<input type='text' class='btn btn-default' name="newPrice" placeholder='menu.price'>
+			<input type='text' class='btn btn-default' name="newDescription" placeholder='menu.description'>
+			<input type='text' class='btn btn-default' name="newRestaurantId" placeholder='menu.restaurantId'> <!-- TODO: select -->
+			<div class='form-group'>
+				<label for = "newRestaurantName">Select Restaurant Name</label>
+				<select role="menu" name="newRestaurantName" class="form-control">
+					{% for i in restaurants %}
+						<option> {{i.name}} </option>
+					{% endfor %}
+				</select>
+			</div>
+			<input type='submit' class='btn btn-success' value="Create">
+		</form>
+	</div>
+{% endblock %}

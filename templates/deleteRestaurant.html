@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %} New Menu {% endblock %}
+{% block head %}
+    {{super()}}
+{% endblock %}
+{% block content %}
+	<body>
+		<section class='panel panel-default'>
+	   		<div class='panel-heading'>
+	   			<h3> Are you sure you want to delete restaurant {{restaurant.name.title()}} ?
+	   			</h3>
+	   		</div>
+	   		<div class='panel-body'>
+				<form action='{{url_for('restaurantDelete', restaurant_id=restaurant_id)}}' method='post'>
+					<input class='btn btn-danger' type="submit" name="delete" value="DELETE">
+
+		        	<button class='btn btn-success' type="submit" name="cancel" value="CANCEL">
+		        		<a href={{url_for('showRestaurants')}}> CANCEL</a>
+		        	</button>
+		        </form>
+	        </div>
+        </section>
+    </body>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %} My Therapeutic Foods Restaurants {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
+	<body onload='myAlert()'>
+		<script>
+			function myAlert() {
+				alert('You are not authorized to modify this page. Please create your own in order to modify.');
+			}
+		</script>
+	</body>
+{% endblock %}
+

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %} My Therapeutic Foods Restaurants {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
+	<section>
+		<h1> All Restaurants </h1>
+		<button type='button' class='btn btn-success'><a href={{url_for('restaurantNew')}}> Create a New Restaurant, {{user.name}}!</a></button>
+		<img src={{user.picture}}/>
+
+		{% for i in restaurants %}
+			<section class='panel panel-default'>
+				<h3 class='panel-heading'>{{i.name}}</h3>
+					<p>{{i.description}}</p>
+				<div class='panel-body'>
+					<div class='btn-group' role='group'>
+						<button type='button' class='btn btn-success'><a href={{url_for('showMenus',restaurant_id=i.id)}}> Menu </a></button>
+						<button type='button' class='btn btn-default'><a href={{url_for('restaurantEdit', restaurant_id=i.id)}}> EDIT</a></button>
+						<button type='button' class='btn btn-warning'><a href={{url_for('restaurantDelete', restaurant_id=i.id)}}> DELETE</a></button>
+					</div>
+					<hr>
+				</div>
+			</section>
+		{% endfor %}
+	</section>
+{% endblock %}
+

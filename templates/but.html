@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %} New Menu {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
+	<body>
+		<h1> New Menu for {{restaurant.name.capitalize()}} </h1> <!--TODO: expression not working anymore-->
+		<!--the first restaurant_id is the variable of method newMenuItem defined in project.py,the second is as in int:restaurant_id of the route; having ','' between action and method will cause failure of redirect -->
+		<form action='{{url_for('newMenu', restaurant_id=restaurant_id )}}' method='post'>
+			 <div class = "input-group">
+			<div class = "input-group-btn">
+                  <button type = "button" class = "btn btn-default dropdown-toggle"
+                     data-toggle = "dropdown">
+                     DropdownMenu
+                     <span class = "caret"></span>
+                  </button>
+
+                  <ul class = "dropdown-menu" >
+                     <li><a href = "#">Action</a></li>
+                     <li><a href = "#">Another action</a></li>
+                     <li><a href = "#">Something else here</a></li>
+
+                     <li class = "divider"></li>
+                     <li><a href = "#">Separated link</a></li>
+                  </ul>
+               </div><!-- /btn-group -->
+               </div>
+			<button type='button' class='btn btn-primary'><input name="newName" type="text" placeholder='menu.name'></button>
+			<button type='button' class='btn btn-primary'><input name="newPrice" type="text" placeholder='menu.price'></button>
+			<button type='button' class='btn btn-primary'><input name="newDescription" type="text" placeholder='menu.description'></button>
+			<button type='button' class='btn btn-success'><input type="submit" value="Create"></button>
+		</form>
+		<script>
+			$(function() {
+					$('.dropdown-menu li').click(function(e) {
+							e.stopPropagation();
+					});
+				$(function(){
+
+    $(".dropdown-menu li a").click(function(){
+
+      $(".btn:first-child").text($(this).text());
+      $(".btn:first-child").val($(this).text());
+
+   });
+
+});
+			});
+		</script>
+	</body>
+{% endblock %}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% block head %}
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <meta charset="utf-8">
+            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+             <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+            <link href="{{url_for('static', filename='style.css')}}" rel="stylesheet">
+            <title>{% block title %}{% endblock %}</title>
+            {% with messages=get_flashed_messages() %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for message in messages %}
+                        <li > <strong> {{message}} </strong></li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        {% endblock %}
+    </head>
+    <body>
+        <nav class='navbar navbar-default' id='menu'>
+            <!-- <ul class='nav nav-tabs nav-justified' id="tabs" data-tabs="tabs">
+                <li role='presetation' class='active'><a href='{{url_for('showRestaurants')}}' data-toggle="tab">Restaurants</a></li>
+                <li role='presetation'><a href='{{url_for('allMenusJSON')}}' data-toggle="tab">Menus</a></li>
+                <li role='presetation'><a href='{{url_for('showConditions')}}' data-toggle="tab">Conditions</a></li> -->
+            <ul class='nav nav-tabs nav-justified'>
+                <li role='presetation'><a href={{url_for('showRestaurants')}}>Restaurants</a></li>
+                <li role='presetation'><a href={{url_for('allMenusJSON')}}>Menus</a></li>
+                <li role='presetation'><a href={{url_for('showConditions')}}>Conditions</a></li>
+                {% if 'username' not in session %}
+                <a href='{{url_for('showLogin')}}'>Click here to log in</a>
+                {% else %}
+                <a href='{{url_for('disconnect')}}'>Logout</a>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <section>
+            <div id='content' class='container-fluid'>{% block content %}{% endblock %}</div>
+        </section>
+        <div id='footer'>
+            {% block footer %}
+            &copy; Copyright 2015 by <a href='http://www.onetreefish.com/'>onetreefish</a>.
+            {% endblock %}
+        </div>
+    </body>
+</html>

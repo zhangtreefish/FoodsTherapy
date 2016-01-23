@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %} My Restaurants {% endblock %}
+{% block head %}
+	{{super()}}
+    <meta name="google-signin-client_id" content="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com">
+
+{% endblock %}
+{% block content %}
+	<body>
+		<div class="g-signin2" data-onsuccess="onSignIn"
+
+		data-scope="https://www.googleapis.com/auth/plus.login"
+    	data-accesstype="offline"
+   		data-redirecturi="http://localhost:5000/gconnect"></div>
+		<div id="restaurants-signin2" data-width="300" data-height="200" data-longtitle="true"><a href="#" onclick="onSignIn()"></a></div>
+		<div id='result'>result</div>
+		<div><button class="btn btn-info" type="submit" value="Sign Out">
+			<a href="#" onclick="signOut()">Sign Out the App</a>
+		</button></div>
+    	<script>
+			function onSignIn(googleUser) {
+				var config={
+					'scope':'https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me',
+					'client_id':'65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com'
+				};
+				gapi.auth2.init();
+				var googleAuth = gapi.auth2.getAuthInstance();
+				var googleUser = GoogleAuth.currentUser.get().
+				gapi.plusone.render("result" )
+				gapi.signin.render ("restaurants-signin2", config);
+			    var profile = googleUser.getBasicProfile();
+			    console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+			    console.log('Name: ' + profile.getName());
+			    console.log('Image URL: ' + profile.getImageUrl());
+			    console.log('Email: ' + profile.getEmail());
+			}
+			function onSuccess(googleUser) {
+		      	console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+		    }
+		    function onFailure(error) {
+		      	console.log(error);
+		    }
+		    function renderButton() {
+		    	var googleUser = GoogleAuth.currentUser.get();
+		        gapi.signin2.render('restaurants-signin2', {
+			        'scope': 'profile',
+			        'width': 300,
+			        'height': 200,
+			        'longtitle': true,
+			        'theme': 'dark',
+			        'onsuccess': onSuccess,
+			        'onfailure': onFailure
+		      	});
+
+		      	var id_token = googleUser.getAuthResponse().id_token;
+		      	console.log("ID Token: " + id_token);
+		    }
+		    function signOut() {
+			    gapi.auth2.init({
+					client_id: 'google-signin-client_id'
+					// Additional optional params
+					})
+			    var auth2 = gapi.auth2.getAuthInstance();
+			    auth2.signOut().then(function () {
+			        console.log('User signed out.');
+			    });
+			}
+		</script>
+		<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+    </body>
+{% endblock %}
+

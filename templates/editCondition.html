@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %} Edit Condition {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
+	<body>
+		<h1> Edit Condition {{condition.name.title()}}</h1> <!--TODO: expression not working anymore-->
+		<!--the first restaurant_id is the variable of method newMenuItem defined in project.py,the second is as in int:restaurant_id of the route; having ','' between action and method will cause failure of redirect -->
+		<form action='{{url_for('conditionEdit',condition_id=condition_id)}}' method='post'>
+			<input type='text' class='btn btn-default' name='newName' placeholder='{{condition.name}}'>
+			<input type='text' class='btn btn-default' name='newSignsAndSymptoms' placeholder='{{condition.signs_and_symptoms}}'>
+			<input type='submit' class='btn btn-sucsess'>
+		</form>
+	</body>
+{% endblock %}

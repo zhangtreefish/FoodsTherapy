@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %} New Menu {% endblock %}
+{% block head %}
+	{{super()}}
+{% endblock %}
+{% block content %}
+	<div>
+		<h1> New Menu for {{restaurant.name.capitalize()}} </h1> <!--TODO: expression not working anymore-->
+		<!--the first restaurant_id is the variable of method newMenuItem defined in project.py,the second is as in int:restaurant_id of the route; having ','' between action and method will cause failure of redirect -->
+		<form action='{{url_for('newMenu', restaurant_id=restaurant_id )}}' method='post'>
+			<div class='form-group'>
+				<label for = "newCourse">Select Course</label>
+				<select role="menu" name="newCourse" class="form-control">
+					<option> Fruit </option>
+					<option> Vegetable </option>
+					<option> Grain </option>
+					<option> Beans and Legumes </option>
+					<option> Meats </option>
+					<option> Seafood </option>
+					<option> One Complete Meal </option>
+				</select>
+			</div>
+			<input type='text' class='btn btn-default' name='newName' placeholder='menu.name'>
+			<input type='text' class='btn btn-default' name="newPrice" placeholder='menu.price'>
+			<input type='text' class='btn btn-default' name="newDescription" placeholder='menu.description'>
+			<input type='text' class='btn btn-default' name="newConditions" placeholder='menu.conditions'>
+			<input type='submit' class='btn btn-success' value="Create">
+		</form>
+	</div>
+{% endblock %}

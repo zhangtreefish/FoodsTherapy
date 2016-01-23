@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %} My Restaurants {% endblock %}
+{% block head %}
+	{{super()}}
+	<meta name="google-signin-scope" content="profile email">
+	<meta name="google-signin-client_id" content="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com">
+	<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+{% endblock %}
+{% block content %}
+	<body>
+		<div class='container'>
+			<div id="fb-root"></div>
+			<section class='row'>
+			  	<div id='signInButton' class='col-xs-2'>
+			  		<span class="g-signin2"
+			  		data-scope="https://www.googleapis.com/auth/plus.login"
+			  		data-clientid="65036325196-a1r7ipo1pppcku75ehr7tauoqcl2dhsb.apps.googleusercontent.com"
+			  		data-redirecturi="postmessage"
+			  		data-accesstype="offline"
+			  		data-cookiepolicy="single_host_origin"
+			  		data-onsuccess="onSignIn"
+			  		data-onfailure="onSignInFailure">
+			  		</span>
+			  	</div>
+			  	<div id='fbSignIn' class='col-xs-1'>
+				  	<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="false" data-auto-logout-link="false" onlogin="sendTokenToServer();"></div>
+		        </div>
+		  	</section>
+		  	<section class='row'>
+		  		<div id='result' class='col-xs-2'></div>
+		  		<div id='status' class='col-xs-2'></div>
+		    </section>
+		</div>
+		<script src='{{url_for('static', filename='login.js')}}'></script>
+    </body>
+{% endblock %}
+

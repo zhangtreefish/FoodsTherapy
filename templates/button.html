@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <title> My Restaurants </title>
+        <style>
+            body {
+                font-size:1.5em;
+                width: 500px;
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
+    </head>
+	<body>
+        <section class='panel panel-default'>
+            <div class='panel-heading'>
+		        <h1> Edit Menu {{menu.name.capitalize()}} at Restaurant {{restaurant.name.title()}} </h1>
+            </div>
+            <div class='panel-body'>
+		        <form action='{{url_for('editMenu', restaurant_id=restaurant_id, menu_id=menu_id )}}' method='post'>
+                    <div class="dropdown">
+                          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Dropdown
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a href="#" data-value="action">Action</a></li>
+                            <li><a href="#" data-value="another action">Another action</a></li>
+                            <li><a href="#" data-value="something else here">Something else here</a></li>
+                            <li><a href="#" data-value="separated link">Separated link</a></li>
+                          </ul>
+                    </div>
+
+
+                </form>
+            </div>
+        </section>
+        <script>
+            $(function() {
+                    $('.dropdown-menu li').click(function(e) {
+                            e.stopPropagation();
+                    });
+                $(function(){
+
+    $(".dropdown-menu li a").click(function(){
+
+      $(".btn:first-child").text($(this).text());
+      $(".btn:first-child").val($(this).text());
+
+   });
+
+});
+            });
+        </script>
+    </body>
+</html>
+
