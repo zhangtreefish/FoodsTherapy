@@ -90,7 +90,6 @@ print firstCon.name
 # client_secret = 'YOUR CLIENT SECRET'
 # client = ImgurClient(client_id,client_secret)
 # img1='client.getAlbumImages(0)'
-https://api.imgur.com/3/image/{id}
 # img2='https://api.imgur.com/3/image/{id}'
 
 # Example request
