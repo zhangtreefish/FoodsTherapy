@@ -357,7 +357,7 @@ def restaurantNew():
         myNewRestaurant = Restaurant(
                                 name=request.form['newName'],
                                 description=request.form['newDescription'],
-                                user_id=login_session['user_id'])
+                                user_id=login_session.get('user_id'))
         session.add(myNewRestaurant)
         session.commit()
         flash('New restaurant ' + myNewRestaurant.name+' has been created!',
@@ -440,7 +440,10 @@ def showMenus(restaurant_id):
         rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
         myMenus = session.query(MenuItem).filter_by(
             restaurant_id=restaurant_id).all()
-        if login_session.get('username') is None or rest.user_id != login_session['user_id']:
+        logged_id = login_session.get('user_id')
+        owner_id = rest.user_id
+        print logged_id, owner_id
+        if logged_id is None or owner_id != logged_id:
             return render_template(
                 'menuPublic.html', restaurant=rest,
                 restaurant_id=restaurant_id,
@@ -448,6 +451,15 @@ def showMenus(restaurant_id):
         else:
             return render_template('menu.html', restaurant_id=restaurant_id,
                                    restaurant=rest, menus=myMenus)
+        # if login_session.get('username'):
+        #     return render_template('menu.html', restaurant_id=restaurant_id,
+        #                            restaurant=rest, menus=myMenus)
+
+        # else:
+        #     return render_template(
+        #         'menuPublic.html', restaurant=rest,
+        #         restaurant_id=restaurant_id,
+        #         menus=myMenus)
     except IOError as err:
         return "No menus available yet."
 
@@ -462,8 +474,7 @@ def newMenu(restaurant_id):
             course=request.form['newCourse'],
             description=request.form['newDescription'],
             price=request.form['newPrice'],
-            restaurant_id=restaurant_id,
-            user_id=rest.user_id)
+            restaurant_id=restaurant_id)
         myNewCondition = Condition(name=request.form['newConditions'])
         session.add(myNewCondition)
         myNewMenu.conditions.append(myNewCondition)
