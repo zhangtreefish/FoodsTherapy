@@ -84,8 +84,7 @@ class MenuItem(Base):
     conditions = relationship(
         'Condition', secondary=condition_menu,
         back_populates='suggested_menus')
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship('User', back_populates='menus')
+
 
 # Restaurant.menu_item = relationship('MenuItem', order_by=MenuItem.id,
 # back_populates='restaurant')

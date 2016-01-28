@@ -6,23 +6,31 @@
 {% block content %}
 	<body class="container">
 		<div class='row panel panel-default'>
-		  	<button type='button' class='btn btn-success'><a href={{url_for('newMenu', restaurant_id=restaurant.id)}}> Suggest a New Menu</a></button>
+		  	<button type='button' class='btn btn-success'>
+		  		<a href='{{url_for('newMenu', restaurant_id=restaurant_id)}}'> Suggest a New Menu</a>
+		  	</button>
+		  	<!-- <button type='button' class='btn btn-success'>
+		  		<a href='{{url_for('newConditionMenu', condition_id=condition_id)}}'> Suggest a New Menu</a>
+		  	</button> -->
 		  	<br>
 		  	<br>
 		   	<div class='col-xs-12 panel-heading'>
 		   		<h2 style="text-align:center"> Menus of Restaurant {{restaurant.name.title()}} </h2>
 			</div>
 
-			{% for i in menus%}
+			{% for i in menus %}
 				<div class='row panel-body'>  <!--panel sections the menus -->
 				    <b class='col-xs-12'> {{i.course}}</b>
 			    	<span class='col-xs-9'>{{i.name}}</span>  <!--span keeps stuff close together -->
-			    	<span class='col-xs-3'style="text-align:right;color:green">{{i.price}}</span>
+			    	<span class='col-xs-3'style="text-align:right;color:red">{{i.price}}</span>
 					<i class='col-xs-12'>{{i.description}}</i>
+					<i class='col-xs-12'>{{i.description}}</i>
+					<i class='col-xs-12'>{{i.restaurant_id}}</i>
 					<span class='col-xs-12 btn-group' role='group'>
-						<button type='button' class='btn btn-default col-xs-4'><a href={{url_for('editMenu', restaurant_id=i.restaurant_id, menu_id=i.id)}}> EDIT</a></button>
-						<button type='button' class='btn btn-warning col-xs-4'><a href={{url_for('deleteMenu', restaurant_id=i.restaurant_id, menu_id=i.id)}}> DELETE</a></button>
+						<button type='button' class='btn btn-default col-xs-4'><a href='{{url_for('editMenu', restaurant_id=i.restaurant_id, menu_id=i.id)}}'> EDIT</a></button>
+						<button type='button' class='btn btn-warning col-xs-4'><a href='{{url_for('deleteMenu', restaurant_id=i.restaurant_id, menu_id=i.id)}}'> DELETE</a></button>
 					</span>
+					<p>here</p>
 				</div>
 			{% endfor %}
 		</div>

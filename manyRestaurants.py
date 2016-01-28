@@ -3,7 +3,8 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Restaurant, MenuItem, Condition, User, Base
 # from imgurpython import ImgurClient # TODO:no module
 
-engine = create_engine('sqlite:///restaurantmenuconditionuser.db')
+engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
+# Base.metadata.create_all(engine)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()

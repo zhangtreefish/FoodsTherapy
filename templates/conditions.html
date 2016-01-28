@@ -15,7 +15,8 @@
 					<p>{{i.signs_and_symptoms}}</p>
 				<div class='panel-body'>
 					<div class='btn-group' role='group'>
-						<button type='button' class='btn btn-success'><a href={{url_for('conditionMenus',condition_id=i.id)}}> Therapeutic Menus for the Condition </a></button>
+						<button type='button' class='btn btn-success'><a href={{url_for('conditionMenus',condition_id=i.id)}}> Therapeutic Menus </a></button>
+						<br>
 						<button type='button' class='btn btn-default'><a href={{url_for('conditionEdit', condition_id=i.id)}}> EDIT</a></button>
 						<button type='button' class='btn btn-warning'><a href={{url_for('conditionDelete', condition_id=i.id)}}> DELETE</a></button>
 					</div>

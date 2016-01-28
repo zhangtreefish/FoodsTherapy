@@ -16,8 +16,8 @@ from database_setup import Restaurant, MenuItem, Condition, Base, User, engine
 # if just do 'from manyRestaurants import Restaurant, session' and without the
 # next 4 lines,get error 'SQLite objects created in a thread can only be used
 # in that same thread'
-engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
-Base.metadata.bind = engine
+# engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
+# Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
@@ -331,7 +331,7 @@ def restaurantsXml():
         child2.text = '\n'  # TODO: insert newline
     return prettify(top)
 
-
+@app.route('/')
 @app.route('/restaurants/')
 def showRestaurants():
     try:
@@ -431,8 +431,8 @@ def menuJSON(restaurant_id, menu_id):
 
 # route() decorator to tell Flask what URL should trigger method
 # next line:if w/o default,do as so: showMenus(restaurant_id=1):
-@app.route('/', defaults={'restaurant_id': 1})
-@app.route('/restaurants/<int:restaurant_id>/')
+# @app.route('/', defaults={'restaurant_id': 1})
+# @app.route('/restaurants/<int:restaurant_id>/')
 @app.route('/restaurants/<int:restaurant_id>/menu/')
 def showMenus(restaurant_id):
     try:
@@ -440,14 +440,14 @@ def showMenus(restaurant_id):
         rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
         myMenus = session.query(MenuItem).filter_by(
             restaurant_id=restaurant_id).all()
-        if login_session.get('username') is None or
-        rest.user_id != login_session['user_id']:
+        if login_session.get('username') is None or rest.user_id != login_session['user_id']:
             return render_template(
                 'menuPublic.html', restaurant=rest,
+                restaurant_id=restaurant_id,
                 menus=myMenus)
         else:
-            return render_template('menu.html', restaurant=rest,
-                                   menus=myMenus)
+            return render_template('menu.html', restaurant_id=restaurant_id,
+                                   restaurant=rest, menus=myMenus)
     except IOError as err:
         return "No menus available yet."
 
@@ -603,15 +603,14 @@ def conditionMenus(condition_id):
 def newConditionMenu(condition_id):
     if request.method == 'POST':
         condition = session.query(Condition).filter_by(id=condition_id).one()
-        laRestaurant_id = session.query(Restaurant).
-        filter_by(name=request.form['newRestaurantName']).one().id
+        laRestaurant_id = session.query(Restaurant).filter_by(name=request.form['newRestaurantName']).one().id
         newConditionMenu = MenuItem(
             name=request.form['newName'],
             course=request.form['newCourse'],
             description=request.form['newDescription'],
             price=request.form['newPrice'],
-            restaurant_id=request.form['newRestaurantId'],
-            user_id=login_session['user_id'])
+            restaurant_id=request.form['newRestaurantId'])
+            # user_id=login_session['user_id'])
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()
