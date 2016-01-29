@@ -81,7 +81,8 @@ class MenuItem(Base):
     description = Column(String(250))
     price = Column(String(8))
     course = Column(String(250))
-    restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
+    restaurant_id = Column(Integer, ForeignKey('restaurant.id'),
+                           nullable=False)
     restaurant = relationship('Restaurant', back_populates='menus')
     conditions = relationship(
         'Condition', secondary=condition_menu,

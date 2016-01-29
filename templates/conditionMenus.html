@@ -21,9 +21,9 @@
 			    	<span class='col-xs-9'>{{i.name}}</span>  <!--span keeps stuff close together -->
 			    	<span class='col-xs-3'style="text-align:right;color:green">{{i.price}}</span>
 					<i class='col-xs-12'>{{i.description}}</i>
-					<p> Your menu is offered at restaurant: {{i.restaurant_id}} {{i.restaurant.name}}</p>
+					<p> being offered at restaurant: {{i.restaurant_id}} {{i.restaurant.name}}</p>
 					<button class='btn btn-info'>
-						<a href='{{url_for('showRestaurants')}}'> Let us go!
+						<a href='{{url_for('showMenus', restaurant_id=i.restaurant.id)}}'> Let us go!
 						</a>
 					</button>
 				</div>

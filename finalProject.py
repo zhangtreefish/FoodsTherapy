@@ -34,18 +34,16 @@ APPLICATION_NAME = "Therapeutic Foods Restaurants"
 # isn't this the same as login_session.get('user_id')?
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
-    # TODO: add if when user already present in users
-    newUser = User(name=login_session['username'],
-                   email=login_session['email'],
-                   picture=login_session['picture']
-                   # id=login_session['user_id']
-                   )
-    session.add(newUser)
-    session.commit()
-    # multiple rows were found instead of one if do .one():
-    # user = session.query(User).filter_by(email=login_session['email']).one()
-    users = session.query(User).filter_by(email=login_session['email']).count()
-    print "user number:", users
+    # first check if user already present in users table
+    user = session.query(User).filter_by(email=login_session['email']).first()
+    if user is None:
+        newUser = User(name=login_session['username'],
+                       email=login_session['email'],
+                       picture=login_session['picture']
+                       # id=login_session['user_id']
+                       )
+        session.add(newUser)
+        session.commit()
     user = session.query(User).filter_by(email=login_session['email']).first()
     return user.id
 
@@ -622,7 +620,8 @@ def newConditionMenu(condition_id):
             name=request.form['newName'],
             course=request.form['newCourse'],
             description=request.form['newDescription'],
-            price=request.form['newPrice'])
+            price=request.form['newPrice'],
+            restaurant_id=request.form['newRestaurantId'])
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()

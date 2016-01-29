@@ -27,7 +27,7 @@
 				<label for = "newRestaurantName">Select Restaurant Name</label>
 				<select role="menu" name="newRestaurantName" class="form-control">
 					{% for i in restaurants %}
-						<option> {{i.name}} </option>
+						<option> {{i.id}} {{i.name}} </option>
 					{% endfor %}
 				</select>
 			</div>
