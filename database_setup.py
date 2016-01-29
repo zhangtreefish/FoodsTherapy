@@ -14,20 +14,20 @@ Base = declarative_base()
 # Here I define table 'user' and its mapped class User
 # user:restaurant is one: many; see lines 24,41.
 # user:condition is many:many;
-# user:menu no direct relationship
+# user:menu: no direct relationship
 class User(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(25))
-    email = Column(String(30))
+    email = Column(String(30), unique=True)
     picture = Column(String(30))
     restaurants = relationship('Restaurant', back_populates='user')
     conditions = relationship('Condition', back_populates='user')
     # menus = relationship('MenuItem',back_populates='user')
 
 
-# restaurant:menu  is one:many;condition:menu is many:many;
+# restaurant:menu  is one:many;
 class Restaurant(Base):
     __tablename__ = 'restaurant'
 
@@ -53,12 +53,14 @@ class Restaurant(Base):
                 'user_id': self.user_id
                 }
 
+# Create an association table between Condition and Menu(many:many)
 condition_menu = Table(
     'condition_menu', Base.metadata,
     Column('condition_id', Integer, ForeignKey('condition.id')),
     Column('menu_id', Integer, ForeignKey('menu_item.id')))
 
 
+# condition:menu is many:many relationship
 class Condition(Base):
     __tablename__ = 'condition'
 

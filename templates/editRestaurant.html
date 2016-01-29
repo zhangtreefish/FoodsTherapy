@@ -12,6 +12,7 @@
             <div class='panel-body'>
 		        <form action='{{url_for('restaurantEdit', restaurant_id=restaurant.id)}}' method='post'>
                     <input name="newName" type="text" value='{{restaurant.name}}'>
+                    <input name="newDescription" type="text" value='{{restaurant.description}}'>
                     <input type="submit" value="EDIT">
                 </form>
             </div>

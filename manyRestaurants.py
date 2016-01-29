@@ -97,8 +97,8 @@ diabeticMenu1 = MenuItem(name='baked sweet potato',
                          price='$3.00',
                          course='vegetable',
                          restaurant=myFirstRestaurant)
-session.add(diabeticMenu1)
-session.commit()
+# session.add(diabeticMenu1)
+# session.commit()
 myFirstCondition.suggested_menus.append(diabeticMenu1)
 session.add(myFirstCondition)
 session.commit()

@@ -34,7 +34,7 @@ APPLICATION_NAME = "Therapeutic Foods Restaurants"
 # isn't this the same as login_session.get('user_id')?
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
-
+    # TODO: add if when user already present in users
     newUser = User(name=login_session['username'],
                    email=login_session['email'],
                    picture=login_session['picture']
@@ -44,6 +44,8 @@ def createUser(login_session):
     session.commit()
     # multiple rows were found instead of one if do .one():
     # user = session.query(User).filter_by(email=login_session['email']).one()
+    users = session.query(User).filter_by(email=login_session['email']).count()
+    print "user number:", users
     user = session.query(User).filter_by(email=login_session['email']).first()
     return user.id
 
@@ -377,6 +379,7 @@ def restaurantEdit(restaurant_id):
     if request.method == 'POST':
         rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
         rest.name = request.form['newName']
+        rest.description = request.form['newDescription']
         session.add(rest)
         session.commit()
         flash('The restaurant ' + rest.name + ' has been edited!',
@@ -637,46 +640,48 @@ def newConditionMenu(condition_id):
             restaurants=restaurants)
 
 
-@app.route('/conditions/<int:condition_id>/<int:menu_id>/edit/',
-           methods=['GET', 'POST'])
-def editConditionMenu(condition_id, menu_id):
-    laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
-    if request.method == 'POST':
-        laMenu.name = request.form['newName']
-        laMenu.course = request.form['newCourse']
-        laMenu.description = request.form['newDescription']
-        laMenu.price = request.form['newPrice']
-        session.add(laMenu)
-        session.commit()
-        flash('The menu ' + laMenu.name + ' has been edited!', 'message')
-        return redirect(url_for('conditionMenus', condition_id=condition_id))
-    else:
-        if login_session.get('username') is None:
-            return redirect(url_for('showLogin'))
-        cond = session.query(Condition).filter_by(id=condition_id).one()
-        return render_template(
-            'editConditionMenu.html', condition_id=condition_id,
-            menu_id=menu_id, condition=cond, menu=laMenu)
+# @app.route('/conditions/<int:condition_id>/<int:menu_id>/edit/',
+#            methods=['GET', 'POST'])
+# def editConditionMenu(condition_id, menu_id):
+#     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
+#     condition = sessionquery(condition),filter_by(id=condition_id).one()
+#     if request.method == 'POST':
+#         laMenu.name = request.form['newName']
+#         laMenu.course = request.form['newCourse']
+#         laMenu.description = request.form['newDescription']
+#         laMenu.price = request.form['newPrice']
+#         laMenu.conditions.append(condition)
+#         session.add(laMenu)
+#         session.commit()
+#         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
+#         return redirect(url_for('conditionMenus', condition_id=condition_id))
+#     else:
+#         if login_session.get('username') is None:
+#             return redirect(url_for('showLogin'))
+#         cond = session.query(Condition).filter_by(id=condition_id).one()
+#         return render_template(
+#             'editConditionMenu.html', condition_id=condition_id,
+#             menu_id=menu_id, condition=cond, menu=laMenu)
 
 
-@app.route('/conditions/<int:condition_id>/<int:menu_id>/disconnect/',
-           methods=['GET', 'POST'])
-def disconnectConditionMenu(condition_id, menu_id):
-    menu = session.query(MenuItem).filter_by(id=menu_id).one()
-    condition = session.query(Condition).filter_by(id=condition_id).one()
-    if request.method == 'POST':
-        name = menu.name
-        # session.delete(laMenu) #  TODO
-        session.commit()
-        flash('the menu ' + name + ' has been dissociated from condition '\
-              +condition.name, 'message')
-        return redirect(url_for('showConditionMenus', condition_id=condition_id))
-    else:
-        if login_session.get('username') is None:
-            return redirect(url_for('showLogin'))
-        return render_template(
-            'disconnectConditionMenu.html', condition_id=condition_id,
-            menu_id=menu_id, menu=menu)
+# @app.route('/conditions/<int:condition_id>/<int:menu_id>/disconnect/',
+#            methods=['GET', 'POST'])
+# def disconnectConditionMenu(condition_id, menu_id):
+#     menu = session.query(MenuItem).filter_by(id=menu_id).one()
+#     condition = session.query(Condition).filter_by(id=condition_id).one()
+#     if request.method == 'POST':
+#         condition.suggested_menus.remove(menu)
+#         session.add(condition)
+#         session.commit()
+#         flash('the menu ' + menu.name + ' has been dissociated from condition '\
+#               + condition.name, 'message')
+#         return redirect(url_for('showConditionMenus', condition_id=condition_id))
+#     else:
+#         if login_session.get('username') is None:
+#             return redirect(url_for('showLogin'))
+#         return render_template(
+#             'disconnectConditionMenu.html', condition_id=condition_id,
+#             menu_id=menu_id, menu=menu)
 
 
 if __name__ == '__main__':

@@ -21,15 +21,11 @@
 			    	<span class='col-xs-9'>{{i.name}}</span>  <!--span keeps stuff close together -->
 			    	<span class='col-xs-3'style="text-align:right;color:green">{{i.price}}</span>
 					<i class='col-xs-12'>{{i.description}}</i>
-					<span class='col-xs-12 btn-group' role='group'>
-						<button type='button' class='btn btn-default col-xs-4'>
-							<a href={{url_for('editConditionMenu', condition_id=i.condition_id, menu_id=i.id)}}> EDIT</a>
-						</button>
-						<button type='button' class='btn btn-warning col-xs-4'>
-							<a href={{url_for('deleteConditionMenu', condition_id=i.condition_id, menu_id=i.id)}}> DELETE</a>
-						</button>
-						<p>{{i.restaurant_id}} {{i.id}}</p>
-					</span>
+					<p> Your menu is offered at restaurant: {{i.restaurant_id}} {{i.restaurant.name}}</p>
+					<button class='btn btn-info'>
+						<a href='{{url_for('showRestaurants')}}'> Let us go!
+						</a>
+					</button>
 				</div>
 			{% endfor %}
 		</div>
