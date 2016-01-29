@@ -7,9 +7,9 @@
 	<body>
         <section class='panel panel-default'>
             <div class='panel-body'>
-		        <form action='{{url_for('editMenu', restaurant_id=restaurant_id, menu_id=menu_id )}}' method='post' id='course' autocomplete='on'>
+		        <form action='{{url_for('editConditionMenu', condition_id=condition_id, menu_id=menu_id )}}' method='post' id='course' autocomplete='on'>
                     <fieldset>
-                        <legend>Edit Menu {{menu.name.capitalize()}} at Restaurant {{restaurant.name.title()}}</legend>
+                        <legend>Edit Menu {{menu.name.capitalize()}} for Condition {{condition.name.title()}}</legend>
                         <div class='form-group'>
                             <label for = 'selectCourse'>Select Course</label>
                             <select id='selectCourse' name='newCourse' class='form-control' form='course' multiple>
@@ -31,7 +31,7 @@
                         <br>
                         <input type='submit' value='EDIT'>
                         <button class='btn btn-success' name='cancelEdit'>
-                            <a href={{url_for('showMenus', restaurant_id=restaurant_id)}}>CANCEL</a>
+                            <a href={{url_for('conditionMenus', condition_id=condition_id)}}>CANCEL</a>
                         </button>
                     </form>
                 </div>

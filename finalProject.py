@@ -31,6 +31,7 @@ APPLICATION_NAME = "Therapeutic Foods Restaurants"
 
 # Here I attempted adding id init, but had to remove:
 # 'IntegrityError: (IntegrityError) UNIQUE constraint failed'
+# isn't this the same as login_session.get('user_id')?
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
 
@@ -347,8 +348,8 @@ def showRestaurants():
                 restaurants=restaurants, user=owner)
     except IOError as err:
         return "No restaurant, error:"
-    finally:
-        flash("This page will show all my restaurants", "message")
+    # finally:
+    #     flash("This page will show all my restaurants", "message")
 
 
 @app.route('/restaurants/new/', methods=['POST', 'GET'])
@@ -442,7 +443,6 @@ def showMenus(restaurant_id):
             restaurant_id=restaurant_id).all()
         logged_id = login_session.get('user_id')
         owner_id = rest.user_id
-        print logged_id, owner_id
         if logged_id is None or owner_id != logged_id:
             return render_template(
                 'menuPublic.html', restaurant=rest,
@@ -451,15 +451,6 @@ def showMenus(restaurant_id):
         else:
             return render_template('menu.html', restaurant_id=restaurant_id,
                                    restaurant=rest, menus=myMenus)
-        # if login_session.get('username'):
-        #     return render_template('menu.html', restaurant_id=restaurant_id,
-        #                            restaurant=rest, menus=myMenus)
-
-        # else:
-        #     return render_template(
-        #         'menuPublic.html', restaurant=rest,
-        #         restaurant_id=restaurant_id,
-        #         menus=myMenus)
     except IOError as err:
         return "No menus available yet."
 
@@ -546,8 +537,8 @@ def showConditions():
 
     except IOError as err:
         return "No conditions, error:"
-    finally:
-        flash("This page shows all conditions...", "message")
+    # finally:
+    #     flash("This page shows all conditions...", "message")
 
 
 @app.route('/conditions/new/', methods=['POST', 'GET'])
@@ -556,7 +547,7 @@ def newCondition():
         condition = Condition(
             name=request.form['name'],
             signs_and_symptoms=request.form['signs_and_symptoms'],
-            user_id=login_session['user_id'])
+            user_id=login_session.get('user_id'))
         session.add(condition)
         session.commit()
         flash('the condition '+condition.name+' has been listed!', 'message')
@@ -602,12 +593,21 @@ def conditionDelete(condition_id):
 
 @app.route('/conditions/<int:condition_id>/menu/')
 def conditionMenus(condition_id):
-    laCondition = session.query(Condition).filter_by(id=condition_id).one()
-    menus = laCondition.suggested_menus
-    return render_template(
-        'conditionMenus.html', condition_id=condition_id,
-        condition=laCondition, menus=menus)
-
+    try:
+        laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        menus = laCondition.suggested_menus
+        logged_id = login_session.get('user_id')
+        owner_id = laCondition.user_id
+        if logged_id is None or owner_id != logged_id:
+            return render_template(
+                'conditionMenusPublic.html', condition_id=condition_id,
+                condition=laCondition, menus=menus)
+        else:
+            return render_template(
+                'conditionMenus.html', condition_id=condition_id,
+                condition=laCondition, menus=menus)
+    except IOError as err:
+        return "No menus available yet."
 
 #  adds a menu suitable for certain condition to a restaurant
 @app.route('/conditions/<int:condition_id>/new/', methods=['GET', 'POST'])
@@ -619,9 +619,7 @@ def newConditionMenu(condition_id):
             name=request.form['newName'],
             course=request.form['newCourse'],
             description=request.form['newDescription'],
-            price=request.form['newPrice'],
-            restaurant_id=request.form['newRestaurantId'])
-            # user_id=login_session['user_id'])
+            price=request.form['newPrice'])
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()
@@ -637,6 +635,48 @@ def newConditionMenu(condition_id):
             'newConditionMenu.html',
             condition_id=condition_id, condition=condition,
             restaurants=restaurants)
+
+
+@app.route('/conditions/<int:condition_id>/<int:menu_id>/edit/',
+           methods=['GET', 'POST'])
+def editConditionMenu(condition_id, menu_id):
+    laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
+    if request.method == 'POST':
+        laMenu.name = request.form['newName']
+        laMenu.course = request.form['newCourse']
+        laMenu.description = request.form['newDescription']
+        laMenu.price = request.form['newPrice']
+        session.add(laMenu)
+        session.commit()
+        flash('The menu ' + laMenu.name + ' has been edited!', 'message')
+        return redirect(url_for('conditionMenus', condition_id=condition_id))
+    else:
+        if login_session.get('username') is None:
+            return redirect(url_for('showLogin'))
+        cond = session.query(Condition).filter_by(id=condition_id).one()
+        return render_template(
+            'editConditionMenu.html', condition_id=condition_id,
+            menu_id=menu_id, condition=cond, menu=laMenu)
+
+
+@app.route('/conditions/<int:condition_id>/<int:menu_id>/disconnect/',
+           methods=['GET', 'POST'])
+def disconnectConditionMenu(condition_id, menu_id):
+    menu = session.query(MenuItem).filter_by(id=menu_id).one()
+    condition = session.query(Condition).filter_by(id=condition_id).one()
+    if request.method == 'POST':
+        name = menu.name
+        # session.delete(laMenu) #  TODO
+        session.commit()
+        flash('the menu ' + name + ' has been dissociated from condition '\
+              +condition.name, 'message')
+        return redirect(url_for('showConditionMenus', condition_id=condition_id))
+    else:
+        if login_session.get('username') is None:
+            return redirect(url_for('showLogin'))
+        return render_template(
+            'disconnectConditionMenu.html', condition_id=condition_id,
+            menu_id=menu_id, menu=menu)
 
 
 if __name__ == '__main__':
