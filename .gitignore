@@ -1,0 +1,4 @@
+*.pyc
+instance/
+fb_client_secrets.json
+client_secret.json
