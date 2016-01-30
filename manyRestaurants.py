@@ -155,7 +155,7 @@ def populateConditions(conditions):
             if session.query(Condition).filter(name=conditions[i]["name"]).one() is None:
                 condition = Condition(name=conditions[i]["name"],
                                       signs_and_symptoms=conditions[i]["signs_and_symptoms"])
-                session.add(menu)
+                session.add(condition)
             else:
                 i += 1
             session.commit()
@@ -168,7 +168,7 @@ def populateCondition(conditions):
         for i in range(len(conditions)):
             condition = Condition(name=conditions[i]["name"],
                                   signs_and_symptoms=conditions[i]["signs_and_symptoms"])
-            session.add(menu)
+            session.add(condition)
 
         session.commit()
     except:
