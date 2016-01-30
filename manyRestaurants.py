@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Restaurant, MenuItem, Condition, User, Base
 import json
+
 # from imgurpython import ImgurClient # TODO:no module
 
 engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
@@ -10,7 +11,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-data = {
+data1 = {
     "restaurants": [
         {"name":"Steam", "description":"all things steamed"},
         {"name":'3Fs', "description":'that features fiber,fitness, and fluid'},
@@ -20,33 +21,51 @@ data = {
     ]
 }
 
-# populate a single restaurant
+# populate a single restaurant, skip if already present
 def populate(restaurant):
-    restaurant = Restaurant(name=restaurant["name"], description=restaurant["description"])
-    session.add(restaurant)
-    session.commit()
+    if session.query(Restaurant).filter_by(name=restaurant["name"]) is None:
+        restaurant = Restaurant(name=restaurant["name"], description=restaurant["description"])
+        session.add(restaurant)
+        session.commit()
+    else:
+        return "Restaurant"+ restaurant + " already present."
 
 
-# populate a list of restaurants
+# to populate a list of restaurants, skip if already present
+def populateRestaurants(restaurants):
+    try:
+        for i in range(len(restaurants)):
+            rest = session.query(Restaurant).filter_by(name=restaurants[i]["name"]).one()
+            if rest is None:
+                restaurant = Restaurant(name=restaurants[i]["name"], description=restaurants[i]["description"])
+                session.add(restaurant)
+            else:
+                i += 1
+            session.commit()
+    except:
+        return "Error: no restaurant is created."
+
+
+# to populate a list of restaurants, without checking
 def populateRestaurant(restaurants):
     try:
         for i in range(len(restaurants)):
             restaurant = Restaurant(name=restaurants[i]["name"], description=restaurants[i]["description"])
             session.add(restaurant)
-        session.commit()
+            session.commit()
     except:
         return "Error: no restaurant is created."
 
 
-populateRestaurant(data["restaurants"])
-
+# populate the restaurants
+populateRestaurant(data1["restaurants"])
 restaurant_num = session.query(Restaurant).count()
 print 'number of restaurants populated:', restaurant_num
 
-myFirstRestaurant = session.query(Restaurant).first()
-mySecondRestaurant = session.query(Restaurant).filter_by(id=2).one()
-myThirdRestaurant = session.query(Restaurant).filter_by(id=3).one()
-myFourthRestaurant = session.query(Restaurant).filter_by(id=4).one()
+myFirstRestaurant = session.query(Restaurant).filter_by(name="Steam").first()
+mySecondRestaurant = session.query(Restaurant).filter_by(name="3Fs").first()
+myThirdRestaurant = session.query(Restaurant).filter_by(name="Eden").first()
+myFourthRestaurant = session.query(Restaurant).filter_by(name="School Lunch").first()
 print "second:",mySecondRestaurant.name
 
 data2 = {
@@ -61,7 +80,7 @@ data2 = {
         {"name":"Four-layered dip", "description": "organic black beans,\
          avacado, tomato, cheese, dressed in lemon juice, served with \
          tortilla chips", "price":"$4.00", "course":"One Complete Meal",
-         "restaurant": mySecondRestaurant},
+         "restaurant": myThirdRestaurant},
         {"name":"chicken noodle soup", "description":"what else can you say? \
          made with carrots, celery, onion,garlic, tomato, zucchini, and \
          ginger root", "price": "$5.00", "course": "One Complete Meal",
@@ -77,106 +96,100 @@ data2 = {
         {"name":"ocean", "description":"soup made of tilapia,  celery, cilantro,\
         green onion,garlic, tomato, zucchini, and ginger root","price":
         "$5.00", "course":"One Complete Meal", "restaurant":
-        myFourthRestaurant}
+        myFourthRestaurant},
+        {"name":"baked sweet potato", "description":"sweet potato baked at \
+        350 for 45 minutes, with skin", "price":"$3.00", "course":
+        "vegetable", "restaurant": mySecondRestaurant}
     ]
 }
 
-# populate a list of menus
+# method to populate a list of menus, skip if already present
+def populateMenus(menus):
+    try:
+        for i in range(len(menus)):
+            if session.query(MenuItem).filter_by(name=menus[i]["name"]).one() is None:
+                menu = MenuItem(name=menus[i]["name"],
+                                description=menus[i]["description"],
+                                price=menus[i]["price"],
+                                course=menus[i]["course"],
+                                restaurant=menus[i]["restaurant"])
+                session.add(menu)
+            else:
+                i += 1
+        session.commit()
+    except:
+        return "Error: no menu is created."
+
 def populateMenu(menus):
     try:
         for i in range(len(menus)):
+
             menu = MenuItem(name=menus[i]["name"],
                             description=menus[i]["description"],
                             price=menus[i]["price"],
                             course=menus[i]["course"],
                             restaurant=menus[i]["restaurant"])
             session.add(menu)
+
         session.commit()
     except:
         return "Error: no menu is created."
-
+# populate the menus
 populateMenu(data2['menus'])
-
-# myFirstMenu = MenuItem(
-#     name='jade',
-#     description='daikon steamed to a luscious texture',
-#     price='$2.50',
-#     course='vegetable',
-#     restaurant=myFirstRestaurant)
-# mySecondMenu = MenuItem(name='fragrant snow',
-#                         description='sweet rice flour balls encasing \
-#                         honey-infused sweet olive blossoms and coconut oil',
-#                         price='$4.00',
-#                         course='dessert',
-#                         restaurant=myFirstRestaurant)
-# myThirdMenu = MenuItem(name='Four-layered dip',
-#                        description='organic black beans, avacado, tomato, \
-#                        cheese, dressed in lemon juice, served with tortilla\
-#                         chips',
-#                        price='$4.00',
-#                        course='One Complete Meal',
-#                        restaurant=mySecondRestaurant)
-# myFourthMenu = MenuItem(name='chicken noodle soup',
-#                         description='what else can you say? made with carrots,\
-#                         celery, onion,garlic, tomato, zucchini, and ginger \
-#                         root',
-#                         price='$5.00',
-#                         course='One Complete Meal',
-#                         restaurant=myFourthRestaurant)
-# myFifthMenu = MenuItem(name='ocean',
-#                        description='soup made of tilapia,  celery, cilantro,\
-#                         green onion,garlic, tomato, zucchini, and ginger root',
-#                        price='$5.00',
-#                        course='One Complete Meal',
-#                        restaurant=myFourthRestaurant)
-# mySixthMenu = MenuItem(name='seaweed',
-#                        description='Wakame salad in green onion, hemp heart,\
-#                        sesame oil, and salt,served with two pieces of baked \
-#                        tofu, and a baked sweet potato',
-#                        price='$5.00',
-#                        course='One Complete Meal',
-#                        restaurant=mySecondRestaurant)
-# mySeventhMenu = MenuItem(name='ocean',
-#                          description='soup made of tilapia,  celery, cilantro,\
-#                          green onion,garlic, tomato, zucchini, and ginger \
-#                          root',
-#                          price='$5.00',
-#                          course='One Complete Meal',
-#                          restaurant=myFourthRestaurant)
-# session.add(myFirstMenu)
-# session.add(mySecondMenu)
-# session.add(myThirdMenu, myFourthMenu)
-# # session.add(myFourthMenu)
-# session.add(myFifthMenu)
-# session.add(mySixthMenu)
-# session.add(mySeventhMenu)
-# session.commit()
 menu_no = session.query(MenuItem).count()
 print 'menu number:', menu_no  # works
 
-myFirstCondition = Condition(name='diabetes',
-                             signs_and_symptoms='thirst, fatigue,\
-                              frequent urination, weight loss')
-mySecondCondition = Condition(name='gray hair',
-                              signs_and_symptoms='natural graying of hair')
-session.add(mySecondCondition)
-session.commit()
-# link a menu to myFirstCondition
-diabeticMenu1 = MenuItem(name='baked sweet potato',
-                         description='sweet potato baked at 350 for 45 minutes,\
-                          with skin',
-                         price='$3.00',
-                         course='vegetable',
-                         restaurant=myFirstRestaurant)
+
+data3 = {
+    "conditions": [
+        {"name": "diabetes", "signs_and_symptoms": "thirst, fatigue, frequent \
+        urination, weight loss"},
+        {"name": "gray hair", "signs_and_symptoms": "natural graying of hair"}
+    ]
+}
+
+# method to populate a list of conditions, skip if already present
+def populateConditions(conditions):
+    try:
+        for i in range(len(conditions)):
+            if session.query(Condition).filter(name=conditions[i]["name"]).one() is None:
+                condition = Condition(name=conditions[i]["name"],
+                                      signs_and_symptoms=conditions[i]["signs_and_symptoms"])
+                session.add(menu)
+            else:
+                i += 1
+            session.commit()
+    except:
+        return "Error: no condition is created."
+
+
+def populateCondition(conditions):
+    try:
+        for i in range(len(conditions)):
+            condition = Condition(name=conditions[i]["name"],
+                                  signs_and_symptoms=conditions[i]["signs_and_symptoms"])
+            session.add(menu)
+
+        session.commit()
+    except:
+        return "Error: no condition is created."
+
+# populate conditions
+populateCondition(data3["conditions"])
+myFirstCondition = session.query(Condition).filter_by(name="diabetes").one()
+print "condiiton:", myFirstCondition
+
+# link a special menu to myFirstCondition
+sweetPotatoMenu = session.query(MenuItem).filter(MenuItem.name.like('%sweet potato%')).first()
+print "sweet potato?:" , sweetPotatoMenu.name
+
 # session.add(diabeticMenu1)
 # session.commit()
-myFirstCondition.suggested_menus.append(diabeticMenu1)
+
+myFirstCondition.suggested_menus.append(sweetPotatoMenu)
 session.add(myFirstCondition)
 session.commit()
-firstCon = session.query(Condition).first()
-print firstCon.name
-# print firstCon.suggested_menus.count()
-# TODO above: why diabeticMenu1 not in the list?
+
 # to get image from imgur:
 # client_id = '32dba864f458125'
 # client_secret = 'YOUR CLIENT SECRET'
@@ -189,18 +202,8 @@ print firstCon.name
 # for item in items:
 #     print "pic-link:",item.link
 
-myFirstUser = User(name='treefish', email='zhangtreefish@yahoo.com',
-                   picture='')
-mySecondUser = User(name='bob', email='fearlessluke8@gmail.com',
-                    picture='http://i.imgur.com/3L3kK3q.png?1')
+# myFirstUser = User(name='treefish', email='zhangtreefish@yahoo.com',
+#                    picture='')
+# mySecondUser = User(name='bob', email='fearlessluke8@gmail.com',
+#                     picture='http://i.imgur.com/3L3kK3q.png?1')
 
-session.add(mySecondUser)
-session.commit()
-# The following unnecessary: the associations were already present,
-# see project.py newMenu()
-# myFirstUser.restaurants.append(myFirstRestaurant)
-# myFirstUser.conditions.append(myFirstCondition)
-# myFirstUser.menus.append(myFirstMenu)
-# myFirstUser.menus.append(mySecondMenu)
-session.add(myFirstUser)
-session.commit()
