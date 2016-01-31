@@ -29,9 +29,6 @@ G_CLIENT_ID = json.loads(
 APPLICATION_NAME = "Therapeutic Foods Restaurants"
 
 
-# Here I attempted adding id init, but had to remove:
-# 'IntegrityError: (IntegrityError) UNIQUE constraint failed'
-# isn't this the same as login_session.get('user_id')?
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
     # first check if user already present in users table
@@ -39,8 +36,7 @@ def createUser(login_session):
     if user is None:
         newUser = User(name=login_session['username'],
                        email=login_session['email'],
-                       picture=login_session['picture']
-                       # id=login_session['user_id']
+                       picture=login_session['picture']  # no need to add id
                        )
         session.add(newUser)
         session.commit()
@@ -193,7 +189,7 @@ def gdisconnect():
     else:
         return jsonify(message='Failed to revoke token for given user.'), 400
 
-
+# TODO create user if have not yet
 @app.route('/fbconnect/', methods=['POST'])
 def fbconnect():
     # Validate state token:# check what client sent is what server sent
