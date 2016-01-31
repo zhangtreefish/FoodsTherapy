@@ -80,7 +80,7 @@ def gconnect():
     # Validate state token:check what client sent is what server sent
     if request.args.get('state') != login_session['state']:
         return jsonify(message='Invalid state parameter.'), 401
-    # Obtain the one-time authorization code from authorization server
+    # Obtain the one-time authorization code from the authorization server
     code = request.data
 
     try:
@@ -104,26 +104,26 @@ def gconnect():
            % access_token)
     h = httplib2.Http()
     # loads:Deserialize to a Python object
-    result = json.loads(h.request(url, 'GET')[1])
-    # get(): ret. a value for the given key;if unavail. ret. default None.
-    if result.get('error') is not None:
+    g_result = json.loads(h.request(url, 'GET')[1])
+    # get(): return a value for given key;if unavail. ret. default None.
+    if g_result.get('error') is not None:
         # either do the following 3 lines, or use jsonify
         # response = make_response(json.dumps(result.get('error')), 500)
         # response.headers['Content-Type'] = 'application/json'
         # return response
-        return jsonify(message=result.get('error')), 500
+        return jsonify(message=g_result.get('error')), 500
 
     # Verify that the access token is used for the intended user.
     # id_token: object, the identity of the resource owner.
     # 'Google ID Token's field (or claim) 'sub' is unique-identifier key for
     # the user.
     gplus_id = credentials.id_token['sub']
-    if result['user_id'] != gplus_id:
+    if g_result['user_id'] != gplus_id:
         return jsonify(message="Token's user ID doesn't match given user \
                         ID."), 401
 
     # Verify that the access token is valid for this app.
-    if result['issued_to'] != G_CLIENT_ID:
+    if g_result['issued_to'] != G_CLIENT_ID:
         return jsonify(message="Token's client ID does not match app's."), 401
 
     stored_credentials = login_session.get('credentials')
@@ -209,12 +209,8 @@ def fbconnect():
     # print app_info.to_json() # why print not working?
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
-    token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=\
-                    fb_exchange_token&client_id=%s&client_secret=%s&\
-                    fb_exchange_token=%s' % (app_id, app_secret, access_token)
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_\
-            exchange_token&client_id=%s&client_secret=%s&fb_exchange_token\
-            =%s' % (app_id, app_secret, access_token)
+    token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -225,8 +221,7 @@ def fbconnect():
     # print 'IMAGE:', img_result
 
     token = result.split("&")[0]
-    info_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' \
-        % token
+    info_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     data = json.loads(h.request(info_url, 'GET')[1])
     login_session['provider'] = 'facebook'
@@ -234,8 +229,7 @@ def fbconnect():
     login_session['email'] = data['email']
     login_session['facebook_id'] = data['id']
 
-    pic_url = 'https://graph.facebook.com/v2.5/me/picture?%s&redirect=0' \
-        % token
+    pic_url = 'https://graph.facebook.com/v2.5/me/picture?%s&redirect=0' % token
     h = httplib2.Http()
     pic = json.loads(h.request(pic_url, 'GET')[1])
     login_session['picture'] = pic['data']['url']
@@ -246,8 +240,8 @@ def fbconnect():
     login_session['user_id'] = user_id
 
     output = ''
-    output += '<h1>Welcome, User'
-    output += str(login_session['user_id'])
+    output += '<h1>Welcome'
+    # output += str(login_session['user_id'])
     output += login_session['username']
     output += '!</h1>'
     output += '<img src="'

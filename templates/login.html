@@ -20,13 +20,8 @@
 				}(document, 'script', 'facebook-jssdk'));
 
 				function sendTokenToServer() {
-                // console.log(FB.getLoginStatus()); undefined
                 var access_token = FB.getAuthResponse()['accessToken'];
-                console.log(access_token);
-                // console.log(getLoginStatus()); TODO: not defined?
-                // FB.api('/me',function(response) {
-                //     console.log('Successful login at FB for:',response['name']);
-                // });
+                //console.log(access_token);
                 $.ajax({
                   type: 'POST',
                   url: '/fbconnect/?state={{STATE}}',//url points to the destination of request:server relaying the one-time code from client to the auth server g+
@@ -35,9 +30,8 @@
                   contentType: 'application/octet-stream; charset=utf-8',
                   success: function(result) {
                     // Handle or verify the server response(i.e. result),passing to the client
-                        $('#result').html(result);
                         if (result) { //result: additional info from server
-                            $('#result').html(result);
+                            //$('#result').html(result);
                             $('#result').html('Login at FB Successful!</br>'+ result + '</br>Redirecting...');
                             setTimeout(function() {
                                 window.location.href='/restaurants/';
@@ -71,41 +65,27 @@
 			  	</div>
 			  	<div id='fbSignIn' class='col-xs-1'>
 				  	<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="false" data-auto-logout-link="false" onlogin="sendTokenToServer();"></div>
-				  	<!-- <fb:login-button scope="public_profile,email" size="medium" onlogin="sendTokenToServer();">
-		        	</fb:login-button> -->
 		        </div>
 		  	</section>
 		  	<section class='row'>
 		  		<div id='result' class='col-xs-2'></div>
 		  		<div id='status' class='col-xs-2'></div>
-			  	<!-- <div
-		            class="fb-like"
-		            data-share="true"
-		            data-width="450"
-		            data-show-faces="true">
-		        </div> -->
-		    </section>
 
-<!-- 			<button class="btn btn=info" type="submit" value="Sign Out">
-				<a href="#" onclick="signOut()">Sign Out the App</a>
-			</button> -->
+		    </section>
 		</div>
 		<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
 		<script>
 			// for FB login
             function statusChangeCallback(response) {
-                console.log('statusChangeCallback');
-                console.log(response);
                 // The response object is returned with a status field that lets the
                 // app know the current login status of the person.
-                // Full docs on the response object can be found in the documentation
-                // for FB.getLoginStatus().
+                // 'connected' means the user is logged into FB and has authenticated my app
                 if (response.status === 'connected') {
                   // Logged into your app and Facebook.
                   var accessToken = response.authResponse.accessToken;
+                  // 'not_authorized':the user is logged into FB but has not authenticated my app
                   // testAPI();
                 } else if (response.status === 'not_authorized') {
-                  // The person is logged into Facebook, but not your app.
                   document.getElementById('status').innerHTML = 'Please log ' +
                     'into this app.';
                 } else {
@@ -155,7 +135,7 @@
 			  	if (authResult['code']) {
 			    	// Hide the sign-in button now that the user is authorized
 			    	$('#signInButton').attr('style', 'display: none');
-			    	$('#result').html(authResult['code']);
+			    	//$('#result').html(authResult['code']);
 			    	// Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
 			    	//.ajax handles the response from google to the client:one-time code to authorize the server and access token for client to access server from browser, and pass onto the server
 			    	$.ajax({
