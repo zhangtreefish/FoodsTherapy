@@ -11,11 +11,14 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 
-# Here I define table 'user' and its mapped class User
-# user:restaurant is one: many; see lines 24,41.
-# user:condition is many:many;
-# user:menu: no direct relationship
 class User(Base):
+    """
+    Here I define table 'user' and its mapped class User
+    user:restaurant is one: many; see lines 24,41.
+    user:condition is many:many;
+    user:menu: no direct relationship
+    """
+
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
@@ -24,11 +27,10 @@ class User(Base):
     picture = Column(String(30))
     restaurants = relationship('Restaurant', back_populates='user')
     conditions = relationship('Condition', back_populates='user')
-    # menus = relationship('MenuItem',back_populates='user')
 
 
-# restaurant:menu  is one:many;
 class Restaurant(Base):
+    """ restaurant:menu  is one:many"""
     __tablename__ = 'restaurant'
 
     id = Column(Integer, primary_key=True)
@@ -60,8 +62,9 @@ condition_menu = Table(
     Column('menu_id', Integer, ForeignKey('menu_item.id')))
 
 
-# condition:menu is many:many relationship
+
 class Condition(Base):
+    """ condition:menu is many:many relationship"""
     __tablename__ = 'condition'
 
     name = Column(String(80), nullable=False)
@@ -88,10 +91,6 @@ class MenuItem(Base):
         'Condition', secondary=condition_menu,
         back_populates='suggested_menus')
 
-
-# Restaurant.menu_item = relationship('MenuItem', order_by=MenuItem.id,
-# back_populates='restaurant')
-
     @property
     def serialize(self):
         return {'name': self.name,
@@ -102,6 +101,10 @@ class MenuItem(Base):
                 'restaurant_id': self.restaurant_id,
                 # 'restaurant':self.restaurant:restaurant is not serializable
                 }
+
+# an alternative way of adding relationship:
+# Restaurant.menu_item = relationship('MenuItem', order_by=MenuItem.id,
+# back_populates='restaurant')
 
 # create an instance of Engine to be connected to SQLite database
 # issue CREATE statements for all tables using MetaData object created during

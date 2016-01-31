@@ -21,8 +21,9 @@ data1 = {
     ]
 }
 
-# populate a single restaurant, skip if already present
+
 def populate(restaurant):
+    """ populate a single restaurant, skip if already present"""
     if session.query(Restaurant).filter_by(name=restaurant["name"]) is None:
         restaurant = Restaurant(name=restaurant["name"], description=restaurant["description"])
         session.add(restaurant)
@@ -31,8 +32,8 @@ def populate(restaurant):
         return "Restaurant"+ restaurant + " already present."
 
 
-# to populate a list of restaurants, skip if already present
 def populateRestaurants(restaurants):
+    """ to populate a list of restaurants, skip if already present"""
     try:
         for i in range(len(restaurants)):
             rest = session.query(Restaurant).filter_by(name=restaurants[i]["name"]).one()
@@ -46,8 +47,8 @@ def populateRestaurants(restaurants):
         return "Error: no restaurant is created."
 
 
-# to populate a list of restaurants, without checking
 def populateRestaurant(restaurants):
+    """ to populate a list of restaurants, without checking"""
     try:
         for i in range(len(restaurants)):
             restaurant = Restaurant(name=restaurants[i]["name"], description=restaurants[i]["description"])
@@ -103,8 +104,9 @@ data2 = {
     ]
 }
 
-# method to populate a list of menus, skip if already present
+
 def populateMenus(menus):
+    """ method to populate a list of menus, skip if already present"""
     try:
         for i in range(len(menus)):
             if session.query(MenuItem).filter_by(name=menus[i]["name"]).one() is None:
@@ -148,8 +150,9 @@ data3 = {
     ]
 }
 
-# method to populate a list of conditions, skip if already present
+
 def populateConditions(conditions):
+    """ method to populate a list of conditions, skip if already present"""
     try:
         for i in range(len(conditions)):
             if session.query(Condition).filter(name=conditions[i]["name"]).one() is None:
