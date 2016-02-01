@@ -9,7 +9,10 @@ import logging
 engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
 # Base.metadata.create_all(engine)
 Base.metadata.bind = engine
+# sessionmaker: a session factory generator (in other words, a function
+# that returns a function that returns a new Session for each call)
 DBSession = sessionmaker(bind=engine)
+# Session: a container of instances of mapped classes
 session = DBSession()
 
 data1 = {
@@ -81,7 +84,10 @@ data2 = {
         {"name":"ocean", "description":"soup made of tilapia,  celery, cilantro,\
         green onion,garlic, tomato, zucchini, and ginger root","price":
         "$5.00", "course":"One Complete Meal", "restaurant":
-        myFourthRestaurant}
+        myFourthRestaurant},
+        {"name":"baked sweet potato", "description":"sweet potato baked at \
+        350 for 45 minutes, with skin", "price":"$3.00", "course":
+        "vegetable", "restaurant": mySecondRestaurant}
     ]
 }
 
@@ -105,7 +111,7 @@ def populateMenus(menus):
 # populate the menus
 populateMenus(data2['menus'])
 menu_no = session.query(MenuItem).count()
-print 'menu number:', menu_no  # works
+print 'menu number:', menu_no
 
 
 data3 = {
@@ -136,16 +142,21 @@ populateConditions(data3["conditions"])
 print "condition counts:", session.query(Condition).count()
 myFirstCondition = session.query(Condition).filter_by(name="diabetes").first()
 
-# ---create and link a special menu to myFirstCondition----
-sweet_potato = [{"name":"baked sweet potato", "description":"sweet potato baked at \
-        350 for 45 minutes, with skin", "price":"$3.00", "course":
-        "vegetable", "restaurant": mySecondRestaurant}]
-populateMenus(sweet_potato)
-sweetPotatoMenu = session.query(MenuItem).filter(MenuItem.name.like('%sweet potato%')).first()
-
-myFirstCondition.suggested_menus.append(sweetPotatoMenu)
-session.add(myFirstCondition)
+# create and link a special menu to a condition w/o committing menu first
+constipation = Condition(name="constipation",signs_and_symptoms="spending \
+                         long time for bowel movement")
+kabocha = MenuItem(
+    name="baked kabocha squash",
+    description="kabocha brushed with coconut oil roasted to a rich texture",
+    price="$3.00",
+    course="vegetable",
+    restaurant=mySecondRestaurant)
+constipation.suggested_menus.append(kabocha)
+session.add(constipation)
 session.commit()
+kabocha_menu = session.query(MenuItem).filter(MenuItem.name.like('%kabocha%')).first()
+print "kabocha?", kabocha_menu.description
+
 
 # to get image from imgur:
 # client_id = '32dba864f458125'
