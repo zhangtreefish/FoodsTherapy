@@ -14,10 +14,8 @@ from oauth2client.client import FlowExchangeError
 from database_setup import Restaurant, MenuItem, Condition, Base, User, engine
 
 # if just do 'from manyRestaurants import Restaurant, session' and without the
-# next 4 lines,get error 'SQLite objects created in a thread can only be used
+# next 2 lines,get error 'SQLite objects created in a thread can only be used
 # in that same thread'
-# engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
-# Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 

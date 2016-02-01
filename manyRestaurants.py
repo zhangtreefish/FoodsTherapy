@@ -1,14 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Restaurant, MenuItem, Condition, User, Base
+from database_setup import Restaurant, MenuItem, Condition, User, Base, engine
 import json
 import logging
 
 # from imgurpython import ImgurClient # TODO:no module
 
-engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
-# Base.metadata.create_all(engine)
-Base.metadata.bind = engine
+
 # sessionmaker: a session factory generator (in other words, a function
 # that returns a function that returns a new Session for each call)
 DBSession = sessionmaker(bind=engine)
