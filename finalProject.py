@@ -5,6 +5,7 @@ import random
 import json
 import httplib2
 import requests
+# import feedparser
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask import session as login_session
@@ -12,6 +13,8 @@ from oauth2client import client, crypt
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from database_setup import Restaurant, MenuItem, Condition, Base, User, engine
+from functools import wraps
+
 
 # if just do 'from manyRestaurants import Restaurant, session' and without the
 # next 2 lines,get error 'SQLite objects created in a thread can only be used
@@ -294,10 +297,11 @@ def restaurantsJSON():
     return jsonify(restaurant=[i.serialize for i in restaurants])
 
 
-@app.route('/restaurants/RSS/')
-def restaurantsRSS():
-    d = feedparser.parse()
-    print d.feed.title
+# @app.route('/restaurants/RSS/')
+# def restaurantsRSS():
+#     restaurants = session.query(Restaurant).all()
+#     d = feedparser.parse(restaurants)
+#     print d.feed.title
 
 
 # for use in conjunction to restaurantsXml()
@@ -308,17 +312,17 @@ def prettify(elem):
     return reparsed.toprettyxml(indent="  ")
 
 
-@app.route('/restaurants/xml/')
-def restaurantsXml():
-    """Return Xml format of restaurants list"""
-    restaurants = session.query(Restaurant).all()
-    top = Element('top')
-    for r in restaurants:
-        child = SubElement(top, 'child')
-        child.text = r.name
-        child2 = SubElement(top, 'child')
-        child2.text = '\n'  # TODO: insert newline
-    return prettify(top)
+# @app.route('/restaurants/xml/')
+# def restaurantsXml():
+#     """Return Xml format of restaurants list"""
+#     restaurants = session.query(Restaurant).all()
+#     top = Element('top')
+#     for r in restaurants:
+#         child = SubElement(top, 'child')
+#         child.text = r.name
+#         child2 = SubElement(top, 'child')
+#         child2.text = '\n'  # TODO: insert newline
+#     return prettify(top)
 
 @app.route('/')
 @app.route('/restaurants/')
@@ -335,12 +339,32 @@ def showRestaurants():
                 'restaurants.html',
                 restaurants=restaurants, user=owner)
     except IOError as err:
-        return "No restaurant, error:"
+        # return redirect(url_for(page_not_found(err))
+            return 'restaurants not created', 404
     # finally:
     #     flash("This page will show all my restaurants", "message")
 
 
+# @app.errorhandler(404)   # got invalid syntax.??
+# def page_not_found(e):
+#     return render_template('404.html'), 404
+
+
+# A decorator is a function that returns a function.
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # logged_id = login_session.get('user_id')
+        # owner_id = rest.user_id
+        # if logged_id is None or owner_id != logged_id:
+        if login_session.get('username') is None :
+            return redirect(url_for('showLogin'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @app.route('/restaurants/new/', methods=['POST', 'GET'])
+@login_required
 def restaurantNew():
     if request.method == 'POST':
         myNewRestaurant = Restaurant(
@@ -353,14 +377,12 @@ def restaurantNew():
               'message')
         return redirect(url_for('showRestaurants'))
     else:
-        if login_session.get('username') is None:
-            return redirect(url_for('showLogin'))
-        else:
-            owner = createUser(login_session)
-            return render_template('newRestaurant.html', user=owner)
+        owner = createUser(login_session)
+        return render_template('newRestaurant.html', user=owner)
 
 
 @app.route('/restaurants/<int:restaurant_id>/edit/', methods=['POST', 'GET'])
+@login_required
 def restaurantEdit(restaurant_id):
     if request.method == 'POST':
         rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -380,12 +402,11 @@ def restaurantEdit(restaurant_id):
 
 
 @app.route('/restaurants/<int:restaurant_id>/delete/', methods=['POST', 'GET'])
+@login_required
 def restaurantDelete(restaurant_id):
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    if login_session.get('username') is None:
-        return redirect(url_for('showLogin'))
     if login_session['user_id'] != laRestaurant.user_id:
-        return render_template('notAuthorized.html')
+        return render_template('notAuthorized.html'), 403
     if request.method == 'POST':
         if(laRestaurant):
             session.delete(laRestaurant)
@@ -394,7 +415,7 @@ def restaurantDelete(restaurant_id):
                   ' has been sadly deleted...', 'message')
             return redirect(url_for('showRestaurants'))
         else:
-            return "no such restaurant found"
+            return "no such restaurant found", 404
     else:
         return render_template(
             'deleteRestaurant.html', restaurant_id=restaurant_id,
@@ -446,9 +467,10 @@ def showMenus(restaurant_id):
 
 # @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/new/', methods=['GET', 'POST'])
+@login_required
 def newMenu(restaurant_id):
+    rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
-        rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
         myNewMenu = MenuItem(
             name=request.form['newName'],
             course=request.form['newCourse'],
@@ -463,17 +485,18 @@ def newMenu(restaurant_id):
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
-        if login_session.get('username') is None:
+        if login_session.get('user_id') != rest.user_id:
             return redirect(url_for('showLogin'))
         rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
         return render_template('newMenuItem.html', restaurant_id=restaurant_id,
                                restaurant=rest)
 
 
-# @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit/',
            methods=['GET', 'POST'])
+@login_required
 def editMenu(restaurant_id, menu_id):
+    rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
         laMenu.name = request.form['newName']
@@ -485,9 +508,8 @@ def editMenu(restaurant_id, menu_id):
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
-        if login_session.get('username') is None:
+        if login_session.get('user_id') != rest.user_id:
             return redirect(url_for('showLogin'))
-        rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
         return render_template(
             'editMenuItem.html', restaurant_id=restaurant_id,
             menu_id=menu_id, restaurant=rest, menu=laMenu)
@@ -496,7 +518,9 @@ def editMenu(restaurant_id, menu_id):
 # @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/',
            methods=['GET', 'POST'])
+@login_required
 def deleteMenu(restaurant_id, menu_id):
+    rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
         name = laMenu.name
@@ -505,7 +529,7 @@ def deleteMenu(restaurant_id, menu_id):
         flash('the menu ' + name + ' has been deleted!', 'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
-        if login_session.get('username') is None:
+        if login_session.get('user_id') != rest.user_id:
             return redirect(url_for('showLogin'))
         return render_template(
             'deleteMenuItem.html', restaurant_id=restaurant_id,
@@ -531,6 +555,7 @@ def showConditions():
 
 
 @app.route('/conditions/new/', methods=['POST', 'GET'])
+@login_required
 def newCondition():
     if request.method == 'POST':
         condition = Condition(
@@ -542,12 +567,11 @@ def newCondition():
         flash('the condition '+condition.name+' has been listed!', 'message')
         return redirect(url_for('showConditions'))
     else:
-        if login_session.get('username') is None:
-            return redirect(url_for('showLogin'))
         return render_template('newCondition.html')
 
 
 @app.route('/conditions/<int:condition_id>/edit', methods=['POST', 'GET'])
+@login_required
 def conditionEdit(condition_id):
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
     if request.method == 'POST':
@@ -558,13 +582,14 @@ def conditionEdit(condition_id):
         flash('the condition '+laCondition.name+' has been edited!', 'message')
         return redirect(url_for('showConditions'))
     else:
-        if login_session.get('username') is None:
+        if login_session.get('user_id') != laCondition.user_id:
             return redirect(url_for('showLogin'))
         return render_template('editCondition.html', condition_id=condition_id,
                                condition=laCondition)
 
 
 @app.route('/conditions/<int:condition_id>/delete', methods=['POST', 'GET'])
+@login_required
 def conditionDelete(condition_id):
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
     if request.method == 'POST':
@@ -573,7 +598,7 @@ def conditionDelete(condition_id):
               ' has been deleted!', 'message')
         return redirect(url_for('showConditions'))
     else:
-        if login_session.get('username') is None:
+        if login_session.get('user_id') != laCondition.user_id:
             return redirect(url_for('showLogin'))
         return render_template(
             'deleteCondition.html',
@@ -600,10 +625,11 @@ def conditionMenus(condition_id):
 
 #  adds a menu suitable for certain condition to a restaurant
 @app.route('/conditions/<int:condition_id>/new/', methods=['GET', 'POST'])
+@login_required
 def newConditionMenu(condition_id):
+    condition = session.query(Condition).filter_by(id=condition_id).one()
     if request.method == 'POST':
-        condition = session.query(Condition).filter_by(id=condition_id).one()
-        laRestaurant_id = session.query(Restaurant).filter_by(name=request.form['newRestaurantName']).one().id
+        # laRestaurant_id = session.query(Restaurant).filter_by(name=request.form['newRestaurantName']).one().id
         newConditionMenu = MenuItem(
             name=request.form['newName'],
             course=request.form['newCourse'],
@@ -617,9 +643,8 @@ def newConditionMenu(condition_id):
               'message')
         return redirect(url_for('conditionMenus', condition_id=condition_id))
     else:
-        if login_session.get('username') is None:
+        if login_session.get('user_id') != condition.user_id:
             return redirect(url_for('showLogin'))
-        condition = session.query(Condition).filter_by(id=condition_id).one()
         restaurants = session.query(Restaurant).all()
         return render_template(
             'newConditionMenu.html',
