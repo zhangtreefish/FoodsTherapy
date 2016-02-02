@@ -65,7 +65,14 @@ def getUserId(email):
         return None
 
 
-# The server creates anti-forgery state token and sends to the client
+# for use in conjunction to restaurantsXml()
+def prettify(elem):
+    """Return a pretty-printed XML string for the Element."""
+    rough_string = ET.tostring(elem, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    return reparsed.toprettyxml(indent="  ")# The server creates anti-forgery state token and sends to the client
+
+
 @app.route('/login/')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -306,14 +313,6 @@ def restaurantsJSON():
 #     print d.feed.title
 
 
-# for use in conjunction to restaurantsXml()
-def prettify(elem):
-    """Return a pretty-printed XML string for the Element."""
-    rough_string = ET.tostring(elem, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
-    return reparsed.toprettyxml(indent="  ")
-
-
 @app.route('/restaurants/xml/')
 def restaurantsXml():
     """Return Xml format of restaurants list"""
@@ -347,7 +346,7 @@ def showRestaurants():
     #     flash("This page will show all my restaurants", "message")
 
 
-# @app.errorhandler(404)   # got invalid syntax.??
+# @app.errorhandler(404)   # //todo:error msg: got invalid syntax.
 # def page_not_found(e):
 #     return render_template('404.html'), 404
 
