@@ -14,8 +14,10 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from database_setup import Restaurant, MenuItem, Condition, Base, User, engine
 from functools import wraps
-
-
+from xml.etree.ElementTree import Element, SubElement
+import xml.etree.ElementTree as ET
+import xml.dom.minidom as minidom
+from os import linesep
 # if just do 'from manyRestaurants import Restaurant, session' and without the
 # next 2 lines,get error 'SQLite objects created in a thread can only be used
 # in that same thread'
@@ -307,22 +309,22 @@ def restaurantsJSON():
 # for use in conjunction to restaurantsXml()
 def prettify(elem):
     """Return a pretty-printed XML string for the Element."""
-    rough_string = ElementTree.tostring(elem, 'utf-8')
+    rough_string = ET.tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ")
 
 
-# @app.route('/restaurants/xml/')
-# def restaurantsXml():
-#     """Return Xml format of restaurants list"""
-#     restaurants = session.query(Restaurant).all()
-#     top = Element('top')
-#     for r in restaurants:
-#         child = SubElement(top, 'child')
-#         child.text = r.name
-#         child2 = SubElement(top, 'child')
-#         child2.text = '\n'  # TODO: insert newline
-#     return prettify(top)
+@app.route('/restaurants/xml/')
+def restaurantsXml():
+    """Return Xml format of restaurants list"""
+    restaurants = session.query(Restaurant).all()
+    top = Element('top')
+    for r in restaurants:
+        child = SubElement(top, 'child')
+        child.text = r.name + r.description
+    return prettify(top)
+    # return app.response_class(ET.dump(top), mimetype='application/xml')
+
 
 @app.route('/')
 @app.route('/restaurants/')
