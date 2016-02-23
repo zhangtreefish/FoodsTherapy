@@ -98,6 +98,19 @@ def login_and_restauranter_required(f):
     return decorated_function
 
 
+def login_and_condition_required(f):
+    """to wrap methods requiring login as the creator of the condition"""
+    @wraps(f)
+    def decorated_function(condition_id, *args, **kwargs):
+        condition = session.query(Restaurant).filter_by(id=condition_id).one()
+        user = login_session.get('user_id')
+        if user is None or user != condition.user_id:
+            flash ('only the creator of the condition has this right.')
+            return redirect(url_for('showConditions'))
+        return f(condition_id, *args, **kwargs)
+    return decorated_function
+
+
 @app.route('/login/')
 def showLogin():
     """the page where users log in"""
@@ -432,8 +445,6 @@ def restaurantEdit(restaurant_id):
 def restaurantDelete(restaurant_id):
     """let a logged-in user delete his or her own restaurant"""
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    if login_session['user_id'] != laRestaurant.user_id:
-        return render_template('notAuthorized.html'), 401
     if request.method == 'POST':
         if(laRestaurant):
             session.delete(laRestaurant)
@@ -538,8 +549,6 @@ def editMenu(restaurant_id, menu_id):
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
-        if login_session.get('user_id') != rest.user_id:
-            return redirect(url_for('showLogin'))
         return render_template(
             'editMenuItem.html', restaurant_id=restaurant_id,
             menu_id=menu_id, restaurant=rest, menu=laMenu)
@@ -554,17 +563,12 @@ def deleteMenu(restaurant_id, menu_id):
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
-        if login_session.get('user_id') != rest.user_id:
-            flash('the restaurant ' + rest.name + ' can only be modified by its creator!', 'message')
-            return redirect(url_for('showMenus', restaurant_id=restaurant_id))
         name = laMenu.name
         session.delete(laMenu)
         session.commit()
         flash('the menu ' + name + ' has been deleted!', 'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
-        if login_session.get('user_id') != rest.user_id:
-            return redirect(url_for('showLogin'))
         return render_template(
             'deleteMenuItem.html', restaurant_id=restaurant_id,
             menu_id=menu_id, menu=laMenu)
@@ -592,7 +596,7 @@ def showConditions():
 @app.route('/conditions/new/', methods=['POST', 'GET'])
 @login_required
 def newCondition():
-    """lets a user create a new health condition for self"""
+    """lets a logged-in user create a new health condition for self"""
     if request.method == 'POST':
         condition = Condition(
             name=request.form['name'],
@@ -607,7 +611,7 @@ def newCondition():
 
 
 @app.route('/conditions/<int:condition_id>/edit', methods=['POST', 'GET'])
-@login_required
+@login_and_condition_required
 def conditionEdit(condition_id):
     """lets a user edit own health condition"""
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
@@ -619,14 +623,12 @@ def conditionEdit(condition_id):
         flash('the condition '+laCondition.name+' has been edited!', 'message')
         return redirect(url_for('showConditions'))
     else:
-        if login_session.get('user_id') != laCondition.user_id:
-            return redirect(url_for('showLogin'))
         return render_template('editCondition.html', condition_id=condition_id,
                                condition=laCondition)
 
 
 @app.route('/conditions/<int:condition_id>/delete', methods=['POST', 'GET'])
-@login_required
+@login_and_condition_required
 def conditionDelete(condition_id):
     """lets a user delete own health condition"""
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
@@ -636,8 +638,6 @@ def conditionDelete(condition_id):
               ' has been deleted!', 'message')
         return redirect(url_for('showConditions'))
     else:
-        if login_session.get('user_id') != laCondition.user_id:
-            return redirect(url_for('showLogin'))
         return render_template(
             'deleteCondition.html',
             condition_id=condition_id, condition=laCondition)
@@ -664,12 +664,11 @@ def conditionMenus(condition_id):
 
 #  adds a menu suitable for certain condition to a restaurant
 @app.route('/conditions/<int:condition_id>/new/', methods=['GET', 'POST'])
-@login_required
+@login_and_condition_required
 def newConditionMenu(condition_id):
     """lets a user suggest a menu suitable for a condition"""
     condition = session.query(Condition).filter_by(id=condition_id).one()
     if request.method == 'POST':
-        # laRestaurant_id = session.query(Restaurant).filter_by(name=request.form['newRestaurantName']).one().id
         newConditionMenu = MenuItem(
             name=request.form['newName'],
             course=request.form['newCourse'],
@@ -683,8 +682,6 @@ def newConditionMenu(condition_id):
               'message')
         return redirect(url_for('conditionMenus', condition_id=condition_id))
     else:
-        if login_session.get('user_id') != condition.user_id:
-            return redirect(url_for('showLogin'))
         restaurants = session.query(Restaurant).all()
         return render_template(
             'newConditionMenu.html',
