@@ -6,6 +6,7 @@ import json
 import httplib2
 import requests
 # import feedparser
+import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask import session as login_session
@@ -84,10 +85,17 @@ def showLogin():
 @app.route('/gconnect/', methods=['POST'])
 def gconnect():
     # Validate state token:check what client sent is what server sent
+    # if request.args.get('state') != login_session['state']:
+    #     return jsonify(message='Invalid state parameter.'), 401
     if request.args.get('state') != login_session['state']:
-        return jsonify(message='Invalid state parameter.'), 401
+        # dumps:Serialize obj to a JSON formatted str
+        response = make_response(json.dumps('Invalid state parameter.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
     # Obtain the one-time authorization code from the authorization server
     code = request.data
+    print 'code:',code
+    logging.debug(code)
 
     try:
         # Upgrade the authorization code into a credentials object
@@ -97,14 +105,13 @@ def gconnect():
         # exchanges an authorization code for a Credentials object
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        return jsonify(message='Failed to upgrade the authorization code.'),\
-                        401
+        return jsonify(message='Failed to upgrade the authorization code.'), 401
 
     # Check that the access token is valid.
     # A Credentials object holds refresh and access tokens that authorize
     # access to a single user's data. These objects are applied to httplib2
     # .Http objects to authorize access.
-    print credentials
+    # print 'credentials:', credentials
     access_token = credentials.access_token
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
            % access_token)
@@ -139,7 +146,7 @@ def gconnect():
 
     # Store the access token in the session for later use.
     login_session['provider'] = 'google'
-    login_session['credentials'] = credentials
+    login_session['credentials'] = credentials.to_json()
     login_session['gplus_id'] = gplus_id
     login_session['access_token'] = credentials.access_token
 
@@ -519,6 +526,9 @@ def deleteMenu(restaurant_id, menu_id):
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
+        if login_session.get('user_id') != rest.user_id:
+            flash('the restaurant ' + rest.name + ' can only be modified by its creator!', 'message')
+            return redirect(url_for('showMenus', restaurant_id=restaurant_id))
         name = laMenu.name
         session.delete(laMenu)
         session.commit()
