@@ -85,13 +85,13 @@ def showLogin():
 @app.route('/gconnect/', methods=['POST'])
 def gconnect():
     # Validate state token:check what client sent is what server sent
-    # if request.args.get('state') != login_session['state']:
-    #     return jsonify(message='Invalid state parameter.'), 401
     if request.args.get('state') != login_session['state']:
-        # dumps:Serialize obj to a JSON formatted str
-        response = make_response(json.dumps('Invalid state parameter.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return jsonify(message='Invalid state parameter.'), 401
+    # if request.args.get('state') != login_session['state']:
+    #     # dumps:Serialize obj to a JSON formatted str
+    #     response = make_response(json.dumps('Invalid state parameter.'), 401)
+    #     response.headers['Content-Type'] = 'application/json'
+    #     return response
     # Obtain the one-time authorization code from the authorization server
     code = request.data
     print 'code:',code
@@ -187,7 +187,7 @@ def gdisconnect():
         return jsonify(message='Why, current user not connected.'), 401
 
     # Execute HTTP GET request to revoke current token
-    access_token = credentials.access_token
+    access_token = login_session.get('access_token')
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
         % access_token
     h = httplib2.Http()
