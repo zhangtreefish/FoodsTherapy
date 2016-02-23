@@ -74,6 +74,30 @@ def prettify(elem):
     return reparsed.toprettyxml(indent="  ")# The server creates anti-forgery state token and sends to the client
 
 
+# A decorator is a function that returns a function.
+def login_required(f):
+    """to wrap those methods that require login"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if login_session.get('username') is None:
+            return redirect(url_for('showLogin'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def login_and_restauranter_required(f):
+    """to wrap methods requiring login as the creator of the restaurant"""
+    @wraps(f)
+    def decorated_function(restaurant_id, *args, **kwargs):
+        rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
+        user = login_session.get('user_id')
+        if user is None or user != rest.user_id:
+            flash ('only the creator of the restaurant has this right.')
+            return redirect(url_for('showRestaurants'))
+        return f(restaurant_id, *args, **kwargs)
+    return decorated_function
+
+
 @app.route('/login/')
 def showLogin():
     """the page where users log in"""
@@ -366,17 +390,6 @@ def showRestaurants():
 # def page_not_found(e):
 #     return render_template('404.html'), 404
 
-
-# A decorator is a function that returns a function.
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if login_session.get('username') is None :
-            return redirect(url_for('showLogin'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-
 @app.route('/restaurants/new/', methods=['POST', 'GET'])
 @login_required
 def restaurantNew():
@@ -397,7 +410,7 @@ def restaurantNew():
 
 
 @app.route('/restaurants/<int:restaurant_id>/edit/', methods=['POST', 'GET'])
-@login_required
+@login_and_restauranter_required
 def restaurantEdit(restaurant_id):
     """let a logged-in user edit his or her own restaurant"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -410,14 +423,12 @@ def restaurantEdit(restaurant_id):
               'message')
         return redirect(url_for('showRestaurants'))
     else:
-        if login_session.get('username') is None:
-            return redirect(url_for('showLogin'))
         return render_template('editRestaurant.html',
                                restaurant_id=restaurant_id, restaurant=rest)
 
 
 @app.route('/restaurants/<int:restaurant_id>/delete/', methods=['POST', 'GET'])
-@login_required
+@login_and_restauranter_required
 def restaurantDelete(restaurant_id):
     """let a logged-in user delete his or her own restaurant"""
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -487,7 +498,7 @@ def showMenus(restaurant_id):
 
 # @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/new/', methods=['GET', 'POST'])
-@login_required
+@login_and_restauranter_required
 def newMenu(restaurant_id):
     """lets a restaurant owner create a new menu"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -506,15 +517,13 @@ def newMenu(restaurant_id):
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
-        if login_session.get('user_id') != rest.user_id:
-            return redirect(url_for('showLogin'))
         return render_template('newMenuItem.html', restaurant_id=restaurant_id,
                                restaurant=rest)
 
 
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit/',
            methods=['GET', 'POST'])
-@login_required
+@login_and_restauranter_required
 def editMenu(restaurant_id, menu_id):
     """lets a restaurant owner edit a menu"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -539,7 +548,7 @@ def editMenu(restaurant_id, menu_id):
 # @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/',
            methods=['GET', 'POST'])
-@login_required
+@login_and_restauranter_required
 def deleteMenu(restaurant_id, menu_id):
     """lets a restaurant owner delete a menu"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
