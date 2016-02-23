@@ -76,6 +76,7 @@ def prettify(elem):
 
 @app.route('/login/')
 def showLogin():
+    """the page where users log in"""
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
@@ -84,6 +85,7 @@ def showLogin():
 
 @app.route('/gconnect/', methods=['POST'])
 def gconnect():
+    """authenticate via google +"""
     # Validate state token:check what client sent is what server sent
     if request.args.get('state') != login_session['state']:
         return jsonify(message='Invalid state parameter.'), 401
@@ -181,6 +183,7 @@ def gconnect():
 
 @app.route('/gdisconnect/')
 def gdisconnect():
+    """disconnect from google +"""
     # Only a connected user needs to do this
     credentials = login_session.get('credentials')
     if credentials is None:
@@ -197,11 +200,12 @@ def gdisconnect():
     if result[0]['status'] == 200:
         del login_session['credentials']
         del login_session['gplus_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
-        del login_session['provider']
-        del login_session['user_id']
+        # the following refactored into disconnect()
+        # del login_session['username']
+        # del login_session['email']
+        # del login_session['picture']
+        # del login_session['provider']
+        # del login_session['user_id']
         return jsonify(message='User successfully disconnected.'), 200
     else:
         return jsonify(message='Failed to revoke token for given user.'), 400
@@ -209,6 +213,7 @@ def gdisconnect():
 # TODO create user if have not yet
 @app.route('/fbconnect/', methods=['POST'])
 def fbconnect():
+    """authenticate via FB"""
     # Validate state token:# check what client sent is what server sent
     if request.args.get('state') != login_session['state']:
         # dumps:Serialize obj to a JSON formatted str
@@ -275,10 +280,11 @@ def fbdisconnect():
     if result['status'] == 200:
         # Reset the user's session
         del login_session['facebook_id']
-        del login_session['user_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
+        # the following refactored into disconnect()
+        # del login_session['user_id']
+        # del login_session['username']
+        # del login_session['email']
+        # del login_session['picture']
         return jsonify(message='User successfully disconnected from FB.'), 200
     else:
         return jsonify(message='Failed to revoke token for given user.'), 400
@@ -287,11 +293,12 @@ def fbdisconnect():
 # Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
+    """provides a logout method for users"""
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
-            del login_session['gplus_id']
-            del login_session['credentials']
+            # del login_session['gplus_id']
+            # del login_session['credentials']
         if login_session['provider'] == 'facebook':
             fbdisconnect()
             del login_session['facebook_id']
@@ -309,6 +316,7 @@ def disconnect():
 
 @app.route('/restaurants/JSON/')
 def restaurantsJSON():
+    """list of restaurants in JSON format"""
     restaurants = session.query(Restaurant).all()
     return jsonify(restaurant=[i.serialize for i in restaurants])
 
@@ -335,6 +343,7 @@ def restaurantsXml():
 @app.route('/')
 @app.route('/restaurants/')
 def showRestaurants():
+    """list of restaurants, varies upon user login status"""
     try:
         restaurants = session.query(Restaurant).all()
         if login_session.get('user_id') is None:
@@ -371,6 +380,7 @@ def login_required(f):
 @app.route('/restaurants/new/', methods=['POST', 'GET'])
 @login_required
 def restaurantNew():
+    """let a logged-in user create a new restaurant"""
     if request.method == 'POST':
         myNewRestaurant = Restaurant(
                                 name=request.form['newName'],
@@ -389,6 +399,7 @@ def restaurantNew():
 @app.route('/restaurants/<int:restaurant_id>/edit/', methods=['POST', 'GET'])
 @login_required
 def restaurantEdit(restaurant_id):
+    """let a logged-in user edit his or her own restaurant"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
         rest.name = request.form['newName']
@@ -408,6 +419,7 @@ def restaurantEdit(restaurant_id):
 @app.route('/restaurants/<int:restaurant_id>/delete/', methods=['POST', 'GET'])
 @login_required
 def restaurantDelete(restaurant_id):
+    """let a logged-in user delete his or her own restaurant"""
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if login_session['user_id'] != laRestaurant.user_id:
         return render_template('notAuthorized.html'), 401
@@ -428,18 +440,21 @@ def restaurantDelete(restaurant_id):
 
 @app.route('/restaurants/<int:restaurant_id>/menu/JSON/')
 def restaurantMenuJSON(restaurant_id):
+    """list of the menus of a particular restaurant in JSON format"""
     menus = session.query(MenuItem).filter_by(restaurant_id=restaurant_id)
     return jsonify(menuItem=[i.serialize for i in menus])
 
 
 @app.route('/menus/JSON/')
 def allMenusJSON():
+    """list of all the menus of all restaurants in JSON format"""
     menus = session.query(MenuItem).order_by(MenuItem.id)
     return jsonify(menuItem=[i.serialize for i in menus])
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/<int:menu_id>/JSON/')
 def menuJSON(restaurant_id, menu_id):
+    """list a particular menus of a particular restaurant in JSON format"""
     menu = session.query(MenuItem).filter_by(id=menu_id).one()
     return jsonify(menuItem=menu.serialize)
 
@@ -450,6 +465,7 @@ def menuJSON(restaurant_id, menu_id):
 # @app.route('/restaurants/<int:restaurant_id>/')
 @app.route('/restaurants/<int:restaurant_id>/menu/')
 def showMenus(restaurant_id):
+    """list of the menus of a restaurant, varies upon user login status"""
     try:
         # without one():'AttributeError: 'Query' object has no attribute 'id''
         rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -473,6 +489,7 @@ def showMenus(restaurant_id):
 @app.route('/restaurants/<int:restaurant_id>/new/', methods=['GET', 'POST'])
 @login_required
 def newMenu(restaurant_id):
+    """lets a restaurant owner create a new menu"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
         myNewMenu = MenuItem(
@@ -499,6 +516,7 @@ def newMenu(restaurant_id):
            methods=['GET', 'POST'])
 @login_required
 def editMenu(restaurant_id, menu_id):
+    """lets a restaurant owner edit a menu"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
@@ -523,6 +541,7 @@ def editMenu(restaurant_id, menu_id):
            methods=['GET', 'POST'])
 @login_required
 def deleteMenu(restaurant_id, menu_id):
+    """lets a restaurant owner delete a menu"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     laMenu = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
@@ -544,6 +563,7 @@ def deleteMenu(restaurant_id, menu_id):
 
 @app.route('/conditions/')
 def showConditions():
+    """lists of health conditions, varies upon user login status"""
     try:
         conditions = session.query(Condition).all()
         if login_session.get('user_id') is None:
@@ -563,6 +583,7 @@ def showConditions():
 @app.route('/conditions/new/', methods=['POST', 'GET'])
 @login_required
 def newCondition():
+    """lets a user create a new health condition for self"""
     if request.method == 'POST':
         condition = Condition(
             name=request.form['name'],
@@ -579,6 +600,7 @@ def newCondition():
 @app.route('/conditions/<int:condition_id>/edit', methods=['POST', 'GET'])
 @login_required
 def conditionEdit(condition_id):
+    """lets a user edit own health condition"""
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
     if request.method == 'POST':
         laCondition.name = request.form['newName']
@@ -597,6 +619,7 @@ def conditionEdit(condition_id):
 @app.route('/conditions/<int:condition_id>/delete', methods=['POST', 'GET'])
 @login_required
 def conditionDelete(condition_id):
+    """lets a user delete own health condition"""
     laCondition = session.query(Condition).filter_by(id=condition_id).one()
     if request.method == 'POST':
         session.delete(laCondition)
@@ -613,6 +636,7 @@ def conditionDelete(condition_id):
 
 @app.route('/conditions/<int:condition_id>/menu/')
 def conditionMenus(condition_id):
+    """lists all menus suitable for a condition"""
     try:
         laCondition = session.query(Condition).filter_by(id=condition_id).one()
         menus = laCondition.suggested_menus
@@ -633,6 +657,7 @@ def conditionMenus(condition_id):
 @app.route('/conditions/<int:condition_id>/new/', methods=['GET', 'POST'])
 @login_required
 def newConditionMenu(condition_id):
+    """lets a user suggest a menu suitable for a condition"""
     condition = session.query(Condition).filter_by(id=condition_id).one()
     if request.method == 'POST':
         # laRestaurant_id = session.query(Restaurant).filter_by(name=request.form['newRestaurantName']).one().id
