@@ -19,6 +19,8 @@ from xml.etree.ElementTree import Element, SubElement
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 from os import linesep
+from imgurpython import ImgurClient
+
 # if just do 'from manyRestaurants import Restaurant, session' and without the
 # next 2 lines,get error 'SQLite objects created in a thread can only be used
 # in that same thread'
@@ -338,7 +340,7 @@ def disconnect():
             # del login_session['credentials']
         if login_session['provider'] == 'facebook':
             fbdisconnect()
-            del login_session['facebook_id']
+            # del login_session['facebook_id']
         del login_session['username']
         del login_session['email']
         del login_session['picture']
@@ -507,7 +509,6 @@ def showMenus(restaurant_id):
         return "No menus available yet.", 404
 
 
-# @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/new/', methods=['GET', 'POST'])
 @login_and_restauranter_required
 def newMenu(restaurant_id):

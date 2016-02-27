@@ -3,9 +3,20 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Restaurant, MenuItem, Condition, User, Base, engine
 import json
 import logging
+import imgur_secret
+from imgurpython import ImgurClient
 
 # from imgurpython import ImgurClient # TODO:no module
 
+# register the app at imgur for its image-storing functions
+client_id = '32dba864f458125'
+client_secret = '87f3eb439764c74901fd3f0e3c7d2ace264ced86'
+# build client object
+client = ImgurClient(client_id,client_secret)
+# access album ids using the cleint object
+ids = client.get_account_album_ids('Zhangtreefish')
+album_id = ids[0]
+print "album_id:", album_id
 
 # sessionmaker: a session factory generator (in other words, a function
 # that returns a function that returns a new Session for each call)
@@ -85,7 +96,10 @@ data2 = {
         myFourthRestaurant},
         {"name":"baked sweet potato", "description":"sweet potato baked at \
         350 for 45 minutes, with skin", "price":"$3.00", "course":
-        "vegetable", "restaurant": mySecondRestaurant}
+        "vegetable", "restaurant": mySecondRestaurant},
+        {"name":"garlic chive", "description":"garlic chive chopped and stir-fried \
+        with tofu, a traditional dish for problem of constipation", "price":"$3.00",
+        "course": "vegetable", "restaurant": mySecondRestaurant}
     ]
 }
 
@@ -134,6 +148,26 @@ def populateConditions(conditions):
     except:
         return "Error: no condition is created."
 
+def addMenuImage(menu_name, image_index):
+    """assign a menu image from an imgur album to the image attribute of a menu item"""
+    try:
+        menu = session.query(MenuItem).filter_by(name=menu_name).first()
+        print "menu:", menu.name
+
+
+        # access image in the album
+        images = client.get_album_images(album_id)
+        menu.image = images[image_index].link
+        print "link:", menu_image
+        session.add(menu)
+        session.commit()
+    except:
+        return "Error: no image is added."
+
+
+addMenuImage("Jade",1)
+addMenuImage("garlic chive", 0)
+
 
 # populate conditions
 populateConditions(data3["conditions"])
@@ -141,35 +175,35 @@ print "condition counts:", session.query(Condition).count()
 myFirstCondition = session.query(Condition).filter_by(name="diabetes").first()
 
 # create and link a special menu to a condition w/o committing menu first
-constipation = Condition(name="constipation",signs_and_symptoms="spending \
-                         long time for bowel movement")
-kabocha = MenuItem(
-    name="baked kabocha squash",
-    description="kabocha brushed with coconut oil roasted to a rich texture",
-    price="$3.00",
-    course="vegetable",
-    restaurant=mySecondRestaurant)
-constipation.suggested_menus.append(kabocha)
-session.add(constipation)
-session.commit()
+if session.query(Condition).filter_by(name="constipation").first() is None:
+    constipation = Condition(
+        name="constipation",
+        signs_and_symptoms="spending long time for bowel movement")
+    kabocha = session.query(MenuItem).filter_by(name="baked kabocha squash").first()
+    if kabocha is None:
+        kabocha = MenuItem(
+            name="baked kabocha squash",
+            description="kabocha brushed with coconut oil roasted to a rich texture",
+            price="$3.00",
+            course="vegetable",
+            restaurant=mySecondRestaurant)
+        addMenuImage("baked kabocha squash",2)
+    constipation.suggested_menus.append(kabocha)
+    session.add(constipation)
+    session.commit()
+
+# verify the presence of kabocha menu
 kabocha_menu = session.query(MenuItem).filter(MenuItem.name.like('%kabocha%')).first()
 print "kabocha?", kabocha_menu.description
 
 
-# to get image from imgur:
-# client_id = '32dba864f458125'
-# client_secret = 'YOUR CLIENT SECRET'
-# client = ImgurClient(client_id,client_secret)
-# img1='client.getAlbumImages(0)'
-# img2='https://api.imgur.com/3/image/{id}'
 
-# Example request
-# items = client.gallery()
-# for item in items:
-#     print "pic-link:",item.link
+# for album in client.get_account_albums('me'):
+# album_title = album.title if album.title else 'Untitled'
+# print('Album: {0} ({1})'.format(album_title, album.id))
 
-# myFirstUser = User(name='treefish', email='zhangtreefish@yahoo.com',
-#                    picture='')
-# mySecondUser = User(name='bob', email='fearlessluke8@gmail.com',
-#                     picture='http://i.imgur.com/3L3kK3q.png?1')
+# for image in client.get_album_images(album.id):
+#     image_title = image.title if image.title else 'Untitled'
+#     print('\t{0}: {1}'.format(image_title, image.link))
+
 
