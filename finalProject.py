@@ -36,7 +36,39 @@ app = Flask(__name__)
 G_CLIENT_ID = json.loads(
     open('client_secret.json', 'r').read())['web']['client_id']
 
-APPLICATION_NAME = "Therapeutic Foods Restaurants"
+APPLICATION_NAME = "Therapeutic Foods"
+image_path_default = 'chive.jpg'
+
+# client = auth.authenticate()
+# album_id = 'menu'
+# create_menu_album(client, album_id)
+album_title = 'menu' # can not specify album_id
+
+album_config = {
+    'title': album_title,
+    # 'title': '',
+    'description': 'images of menus {0}'.format(datetime.now())
+}
+
+album_id = None
+# build client object
+client = auth.authenticate()
+albums = client.get_account_albums('me')
+no_menu_album = True
+for i in albums:
+    print i
+    if i.title == album_title:
+        album_id = i.id
+        no_menu_album = False
+        break
+
+# print "album1", album #works
+if no_menu_album:
+    client.create_album(album_config)
+    album_ids = client.get_account_album_ids('me')
+    album_count = client.get_account_album_count('me')
+    print "album2", album_ids
+    album_id = album_ids[album_count-1]
 
 
 def createUser(login_session):
@@ -115,6 +147,51 @@ def login_and_condition_required(f):
             return redirect(url_for('showConditions'))
         return f(condition_id, *args, **kwargs)
     return decorated_function
+
+# def create_menu_album(imgur_client, album_id):
+#     album_config = {
+#         'ids': album_id,
+#         'title': 'therapeutic menu album',
+#         'description': 'images of menus for Therapeutic Foods app,\
+#          created on date {0}'.format(datetime.now())
+#     }
+#     imgur_client.create_album(album_config)
+#     flash ('Album  created')
+
+
+def upload_and_populate_image(menu, client, album_id, image_name, image_path):
+    '''
+    Upload a picture of the menu item to the app author's Menu Image album at
+     imgur.com and populate the image attribute of a menuItem with it
+    '''
+    # create an imgur client object
+    # client = authenticate()
+    # get my Menu Image album(i.e.first album)'s id
+    # ids = client.get_account_album_ids('Zhangtreefish')
+    # album_id = ids[0]
+
+    # Here's the metadata for the upload. All of these are optional, including
+    # this config dict itself.
+    # album_id = 'menu'
+    # create_menu_album(client, album_id)
+    img_config = {
+        'album': album_id,
+        'name':  image_name,
+        'title': '',
+        'description': ' on date {0}'.format(datetime.now())
+    }
+
+    print("Uploading image... ")
+    image = client.upload_from_path(image_path, config=img_config, anon=False)
+    print('Done. Image:', image)
+    # return image
+    count = client.get_album(album_id).images_count
+    print "count:", count
+    last_image_index = count-1
+    images = client.get_album_images(album_id)
+    # finally set the image property for myNewMenu
+    menu.image = images[last_image_index].link
+    return image
 
 
 @app.route('/login/')
@@ -531,22 +608,12 @@ def newMenu(restaurant_id):
         myNewMenu.conditions.append(myNewCondition)
 
         # upload the menu image to imgur, naming the image after the menu
-        # image_name = request.form['newName']
-        # image_path = request.form['newImage']
-        client = auth.authenticate()
-        uploadImage.upload_image(client, request.form['newName'], request.form['newImage'])
         # adds the image property to menu
-        # first invoke the imgur client object
-        # get my first album's id
-        ids = client.get_account_album_ids('Zhangtreefish')
-        album_id = ids[0]
-        # grab the most recently uploaded image
-        count = client.get_album(album_id).images_count
-        print "count:", count
-        last_image_index = count-1
-        images = client.get_album_images(album_id)
-        # finally set the image property for myNewMenu
-        myNewMenu.image = images[last_image_index].link
+        # client = auth.authenticate()
+        # album_id = 'menu'
+        # create_menu_album(client, album_id)
+        upload_and_populate_image(myNewMenu, client, album_id, request.form['newName'], request.form['newImage'])
+        # uploadImage.upload_image(client, request.form['newName'], request.form['newName'])
         session.add(myNewMenu)
         session.commit()
 

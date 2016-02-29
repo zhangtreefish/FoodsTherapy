@@ -7,16 +7,24 @@ import imgur_secret
 from imgurpython import ImgurClient
 from auth import authenticate
 
-# from imgurpython import ImgurClient # TODO:no module
+album_id = 'menu'
+album_config = {
+    'ids': album_id,
+    'title': 'therapeutic menu album',
+    'description': 'images of menus for Therapeutic Foods app,\
+     created on date {0}'.format(datetime.now())
+}
 
-# register the app at imgur for its image-storing functions
 # build client object
 client = authenticate()
-# access album ids using the cleint object
-ids = client.get_account_album_ids('Zhangtreefish')
-album_id = ids[0]
-print "album_id:", album_id
-images = client.get_album_images(album_id)
+client.create_album(album_config)
+
+# # access album ids using the cleint object
+# client = authenticate()
+# ids = client.get_account_album_ids('Zhangtreefish')
+# album_id = ids[0]
+# print "album_id:", album_id
+# images = client.get_album_images(album_id)
 
 # sessionmaker: a session factory generator (in other words, a function
 # that returns a function that returns a new Session for each call)
