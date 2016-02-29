@@ -5,18 +5,18 @@ import json
 import logging
 import imgur_secret
 from imgurpython import ImgurClient
+from auth import authenticate
 
 # from imgurpython import ImgurClient # TODO:no module
 
 # register the app at imgur for its image-storing functions
-client_id = '32dba864f458125'
-client_secret = '87f3eb439764c74901fd3f0e3c7d2ace264ced86'
 # build client object
-client = ImgurClient(client_id,client_secret)
+client = authenticate()
 # access album ids using the cleint object
 ids = client.get_account_album_ids('Zhangtreefish')
 album_id = ids[0]
 print "album_id:", album_id
+images = client.get_album_images(album_id)
 
 # sessionmaker: a session factory generator (in other words, a function
 # that returns a function that returns a new Session for each call)
@@ -167,6 +167,12 @@ def addMenuImage(menu_name, image_index):
 
 addMenuImage("Jade",1)
 addMenuImage("garlic chive", 0)
+addMenuImage("seaweed", 3)
+addMenuImage("chicken noodle soup", 4)
+addMenuImage("fragrant snow", 8)
+addMenuImage("Four-layered dip", 5)
+addMenuImage("baked sweet potato", 7)
+addMenuImage("ocean", 6)
 
 
 # populate conditions

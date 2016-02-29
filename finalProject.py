@@ -19,7 +19,11 @@ from xml.etree.ElementTree import Element, SubElement
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 from os import linesep
-from imgurpython import ImgurClient
+# from manyRestaurants import addMenuImage
+import uploadImage
+import auth
+from datetime import datetime
+
 
 # if just do 'from manyRestaurants import Restaurant, session' and without the
 # next 2 lines,get error 'SQLite objects created in a thread can only be used
@@ -277,6 +281,7 @@ def fbconnect():
     # img_result = h.request(url, 'GET')[1]
     # print 'IMAGE:', img_result
 
+
     token = result.split("&")[0]
     info_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
@@ -524,8 +529,27 @@ def newMenu(restaurant_id):
         myNewCondition = Condition(name=request.form['newConditions'])
         session.add(myNewCondition)
         myNewMenu.conditions.append(myNewCondition)
+
+        # upload the menu image to imgur, naming the image after the menu
+        # image_name = request.form['newName']
+        # image_path = request.form['newImage']
+        client = auth.authenticate()
+        uploadImage.upload_image(client, request.form['newName'], request.form['newImage'])
+        # adds the image property to menu
+        # first invoke the imgur client object
+        # get my first album's id
+        ids = client.get_account_album_ids('Zhangtreefish')
+        album_id = ids[0]
+        # grab the most recently uploaded image
+        count = client.get_album(album_id).images_count
+        print "count:", count
+        last_image_index = count-1
+        images = client.get_album_images(album_id)
+        # finally set the image property for myNewMenu
+        myNewMenu.image = images[last_image_index].link
         session.add(myNewMenu)
         session.commit()
+
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
@@ -545,6 +569,7 @@ def editMenu(restaurant_id, menu_id):
         laMenu.course = request.form['newCourse']
         laMenu.description = request.form['newDescription']
         laMenu.price = request.form['newPrice']
+
         session.add(laMenu)
         session.commit()
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')

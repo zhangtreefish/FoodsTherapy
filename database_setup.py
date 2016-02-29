@@ -99,6 +99,7 @@ class MenuItem(Base):
                 'description': self.description,
                 'price': self.price,
                 'id': self.id,
+                'image': self.image,
                 'restaurant_id': self.restaurant_id,
                 # 'restaurant':self.restaurant:restaurant is not serializable
                 }
