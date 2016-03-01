@@ -164,16 +164,7 @@ def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     Upload a picture of the menu item to the app author's Menu Image album at
      imgur.com and populate the image attribute of a menuItem with it
     '''
-    # create an imgur client object
-    # client = authenticate()
-    # get my Menu Image album(i.e.first album)'s id
-    # ids = client.get_account_album_ids('Zhangtreefish')
-    # album_id = ids[0]
 
-    # Here's the metadata for the upload. All of these are optional, including
-    # this config dict itself.
-    # album_id = 'menu'
-    # create_menu_album(client, album_id)
     img_config = {
         'album': album_id,
         'name':  image_name,
@@ -190,7 +181,14 @@ def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     last_image_index = count-1
     images = client.get_album_images(album_id)
     # finally set the image property for myNewMenu
-    menu.image = images[last_image_index].link
+    image = None
+    for i in images:
+        if i.name == image_name:
+            image = i
+            break
+
+    # menu.image = images[last_image_index].link
+    menu.image = image.link
     return image
 
 
@@ -607,13 +605,7 @@ def newMenu(restaurant_id):
         session.add(myNewCondition)
         myNewMenu.conditions.append(myNewCondition)
 
-        # upload the menu image to imgur, naming the image after the menu
-        # adds the image property to menu
-        # client = auth.authenticate()
-        # album_id = 'menu'
-        # create_menu_album(client, album_id)
         upload_and_populate_image(myNewMenu, client, album_id, request.form['newName'], request.form['newImage'])
-        # uploadImage.upload_image(client, request.form['newName'], request.form['newName'])
         session.add(myNewMenu)
         session.commit()
 
@@ -636,7 +628,10 @@ def editMenu(restaurant_id, menu_id):
         laMenu.course = request.form['newCourse']
         laMenu.description = request.form['newDescription']
         laMenu.price = request.form['newPrice']
-
+        # myNewCondition = Condition(name=request.form['newConditions'])
+        # session.add(myNewCondition)
+        # laMenu.conditions.append(myNewCondition)
+        upload_and_populate_image(laMenu, client, album_id, request.form['newName'], request.form['newImage'])
         session.add(laMenu)
         session.commit()
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
@@ -707,33 +702,40 @@ def newCondition():
 @login_and_condition_required
 def conditionEdit(condition_id):
     """lets a user edit own health condition"""
-    laCondition = session.query(Condition).filter_by(id=condition_id).one()
-    if request.method == 'POST':
-        laCondition.name = request.form['newName']
-        laCondition.signs_and_symptoms = request.form['newSignsAndSymptoms']
-        session.add(laCondition)
-        session.commit()
-        flash('the condition '+laCondition.name+' has been edited!', 'message')
-        return redirect(url_for('showConditions'))
-    else:
-        return render_template('editCondition.html', condition_id=condition_id,
-                               condition=laCondition)
+    try:
+        laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        if laCondition:
+            if request.method == 'POST':
+                laCondition.name = request.form['newName']
+                laCondition.signs_and_symptoms = request.form['newSignsAndSymptoms']
+                session.add(laCondition)
+                session.commit()
+                flash('the condition '+laCondition.name+' has been edited!', 'message')
+                return redirect(url_for('showConditions'))
+            else:
+                return render_template('editCondition.html', condition_id=condition_id,
+                                       condition=laCondition)
+    except IOError as err:
+        return "No condition edited", 404
 
 
 @app.route('/conditions/<int:condition_id>/delete', methods=['POST', 'GET'])
 @login_and_condition_required
 def conditionDelete(condition_id):
     """lets a user delete own health condition"""
-    laCondition = session.query(Condition).filter_by(id=condition_id).one()
-    if request.method == 'POST':
-        session.delete(laCondition)
-        flash('the condition ' + laCondition.name +
-              ' has been deleted!', 'message')
-        return redirect(url_for('showConditions'))
-    else:
-        return render_template(
-            'deleteCondition.html',
-            condition_id=condition_id, condition=laCondition)
+    try:
+        laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        if request.method == 'POST':
+            session.delete(laCondition)
+            flash('the condition ' + laCondition.name +
+                  ' has been deleted!', 'message')
+            return redirect(url_for('showConditions'))
+        else:
+            return render_template(
+                'deleteCondition.html',
+                condition_id=condition_id, condition=laCondition)
+    except IOError as err:
+        return "No condition deleted.", 404
 
 
 @app.route('/conditions/<int:condition_id>/menu/')

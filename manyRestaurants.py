@@ -6,25 +6,15 @@ import logging
 import imgur_secret
 from imgurpython import ImgurClient
 from auth import authenticate
+from datetime import datetime
 
-album_id = 'menu'
-album_config = {
-    'ids': album_id,
-    'title': 'therapeutic menu album',
-    'description': 'images of menus for Therapeutic Foods app,\
-     created on date {0}'.format(datetime.now())
-}
 
-# build client object
+# access menu images in the app author's menu album at imgur.com
 client = authenticate()
-client.create_album(album_config)
-
-# # access album ids using the cleint object
-# client = authenticate()
-# ids = client.get_account_album_ids('Zhangtreefish')
-# album_id = ids[0]
-# print "album_id:", album_id
-# images = client.get_album_images(album_id)
+ids = client.get_account_album_ids('Zhangtreefish')
+album_id = ids[0]
+print "album_id:", album_id
+images = client.get_album_images(album_id)
 
 # sessionmaker: a session factory generator (in other words, a function
 # that returns a function that returns a new Session for each call)
@@ -157,7 +147,10 @@ def populateConditions(conditions):
         return "Error: no condition is created."
 
 def addMenuImage(menu_name, image_index):
-    """assign a menu image from an imgur album to the image attribute of a menu item"""
+    """
+    assign a menu image from app author's imgur album to the image attribute
+    of a menu item
+    """
     try:
         menu = session.query(MenuItem).filter_by(name=menu_name).first()
         print "menu:", menu.name

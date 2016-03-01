@@ -10,7 +10,10 @@
 		<form action='{{url_for('conditionEdit',condition_id=condition_id)}}' method='post'>
 			<input type='text' class='btn btn-default' name='newName' placeholder='{{condition.name}}'>
 			<input type='text' class='btn btn-default' name='newSignsAndSymptoms' placeholder='{{condition.signs_and_symptoms}}'>
-			<input type='submit' class='btn btn-sucsess'>
+			<input type='submit' class='btn btn-default' value='EDIT'>
+            <button class='btn btn-success' name='cancelEdit'>
+                <a href={{url_for('showConditions')}}>CANCEL</a>
+            </button>
 		</form>
 	</body>
 {% endblock %}

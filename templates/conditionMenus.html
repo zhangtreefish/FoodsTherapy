@@ -22,7 +22,7 @@
 			    	<span class='col-xs-3' style="text-align:right;color:green">{{i.price}}</span>
 			    	<img src='{{i.image}}' alt='menu_pic' width='220' />
 					<i class='col-xs-12'>{{i.description}}</i>
-					<p> being offered at restaurant: {{i.restaurant_id}} {{i.restaurant.name}}</p>
+					<span class='col-xs-9'> being offered at restaurant: {{i.restaurant_id}} </span>
 					<button class='btn btn-info'>
 						<a href='{{url_for('showMenus', restaurant_id=i.restaurant.id)}}'> Let us go!
 						</a>
