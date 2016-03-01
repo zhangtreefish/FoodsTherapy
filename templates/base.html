@@ -6,7 +6,8 @@
             <meta charset="utf-8">
             <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
             <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-             <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
             <link href="{{url_for('static', filename='style.css')}}" rel="stylesheet">
             <title>{% block title %}{% endblock %}</title>
             {% with messages=get_flashed_messages() %}
@@ -27,8 +28,9 @@
                 <li role='presetation'><a href='{{url_for('allMenusJSON')}}' data-toggle="tab">Menus</a></li>
                 <li role='presetation'><a href='{{url_for('showConditions')}}' data-toggle="tab">Conditions</a></li> -->
             <ul class='nav nav-tabs nav-justified'>
+                <li><i class='fa fa-home' style="font-size: 2.0em;"></i></li>
                 <li role='presetation'><a href={{url_for('showRestaurants')}}>Restaurants</a></li>
-                <li role='presetation'><a href={{url_for('allMenusJSON')}}>Menus</a></li>
+                <li role='presetation'><a href={{url_for('allMenusJSON')}}>MENU</a></li>
                 <li role='presetation'><a href={{url_for('showConditions')}}>Conditions</a></li>
                 {% if 'username' not in session %}
                 <a href='{{url_for('showLogin')}}'>Click here to log in</a>

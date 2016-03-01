@@ -19,9 +19,7 @@ from xml.etree.ElementTree import Element, SubElement
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 from os import linesep
-# from manyRestaurants import addMenuImage
-import uploadImage
-import auth
+from auth import authenticate
 from datetime import datetime
 
 
@@ -52,7 +50,7 @@ album_config = {
 
 album_id = None
 # build client object
-client = auth.authenticate()
+client = authenticate()
 albums = client.get_account_albums('me')
 no_menu_album = True
 for i in albums:
