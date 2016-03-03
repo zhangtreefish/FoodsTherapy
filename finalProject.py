@@ -37,11 +37,7 @@ G_CLIENT_ID = json.loads(
 APPLICATION_NAME = "Therapeutic Foods"
 image_path_default = 'chive.jpg'
 
-# client = auth.authenticate()
-# album_id = 'menu'
-# create_menu_album(client, album_id)
 album_title = 'menu' # can not specify album_id
-
 album_config = {
     'title': album_title,
     # 'title': '',
@@ -162,31 +158,41 @@ def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     Upload a picture of the menu item to the app author's Menu Image album at
      imgur.com and populate the image attribute of a menuItem with it
     '''
-
+    # configure fields for image
     img_config = {
         'album': album_id,
         'name':  image_name,
-        'title': '',
-        'description': ' on date {0}'.format(datetime.now())
+        'title': image_name,
+        'description': 'on date {0}'.format(datetime.now())
     }
-
-    print("Uploading image... ")
-    image = client.upload_from_path(image_path, config=img_config, anon=False)
-    print('Done. Image:', image)
-    # return image
-    count = client.get_album(album_id).images_count
-    print "count:", count
-    last_image_index = count-1
+    # check if image is already in the album
     images = client.get_album_images(album_id)
-    # finally set the image property for myNewMenu
+    image_not_in_album = True
+    ids=None
+    for i in images:
+        print 'item list',i.id,i.link
+        if i.name == image_name:
+            ids=i.id
+            image_not_in_album = False
+            break
+    # upload from file path to the imgur album if not already present
+    if image_not_in_album:
+        client.upload_from_path(image_path, config=img_config, anon=False)
+    # replace if already present
+    else:
+        client.album_remove_images(album_id, ids)
+        client.upload_from_path(image_path, config=img_config, anon=False)
+
+    # access the image
+    images = client.get_album_images(album_id)
     image = None
     for i in images:
         if i.name == image_name:
             image = i
             break
-
-    # menu.image = images[last_image_index].link
+    # assign the image to menu image property
     menu.image = image.link
+
     return image
 
 
@@ -701,7 +707,7 @@ def newCondition():
 def conditionEdit(condition_id):
     """lets a user edit own health condition"""
     try:
-        laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        laCondition = session.query(Condition).filter_by(id=condition_id).first()
         if laCondition:
             if request.method == 'POST':
                 laCondition.name = request.form['newName']

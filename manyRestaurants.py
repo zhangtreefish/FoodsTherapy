@@ -9,12 +9,19 @@ from auth import authenticate
 from datetime import datetime
 
 
-# access menu images in the app author's menu album at imgur.com
+# access menu images in the app author's menu album (id 'risa2')at imgur.com
 client = authenticate()
 ids = client.get_account_album_ids('Zhangtreefish')
-album_id = ids[0]
-print "album_id:", album_id
+for a in ids:
+    print 'album:',a
+    images = client.get_album_images(a)
+    for i in images:
+        print 'itme list;', i.id,i.link, i.name
+album_id = 'risa2'
+print "album_id:!!!!!!!!!!", album_id
 images = client.get_album_images(album_id)
+for i in images:
+    print 'itme list;', i.id,i.link
 
 # sessionmaker: a session factory generator (in other words, a function
 # that returns a function that returns a new Session for each call)
@@ -59,13 +66,13 @@ def populateRestaurants(restaurants):
 # populate the restaurants
 populateRestaurants(data1["restaurants"])
 restaurant_num = session.query(Restaurant).count()
-print 'number of restaurants populated:', restaurant_num
+# print 'number of restaurants populated:', restaurant_num
 
 myFirstRestaurant = session.query(Restaurant).filter_by(name="Steam").first()
 mySecondRestaurant = session.query(Restaurant).filter_by(name="3Fs").first()
 myThirdRestaurant = session.query(Restaurant).filter_by(name="Eden").first()
 myFourthRestaurant = session.query(Restaurant).filter_by(name="School Lunch").first()
-print "second:", mySecondRestaurant
+# print "second:", mySecondRestaurant
 
 data2 = {
     "menus": [
@@ -121,7 +128,7 @@ def populateMenus(menus):
 # populate the menus
 populateMenus(data2['menus'])
 menu_no = session.query(MenuItem).count()
-print 'menu number:', menu_no
+# print 'menu number:', menu_no
 
 
 data3 = {
@@ -146,7 +153,7 @@ def populateConditions(conditions):
     except:
         return "Error: no condition is created."
 
-def addMenuImage(menu_name, image_index):
+def addMenuImage(menu_name, image_id):
     """
     assign a menu image from app author's imgur album to the image attribute
     of a menu item
@@ -155,10 +162,14 @@ def addMenuImage(menu_name, image_index):
         menu = session.query(MenuItem).filter_by(name=menu_name).first()
         print "menu:", menu.name
 
-
         # access image in the album
         images = client.get_album_images(album_id)
-        menu.image = images[image_index].link
+        img_link = None
+        for i in images:
+            if i.id==image_id:
+                img_link = i.link
+
+        menu.image = img_link
         print "link:", menu_image
         session.add(menu)
         session.commit()
@@ -166,14 +177,14 @@ def addMenuImage(menu_name, image_index):
         return "Error: no image is added."
 
 
-addMenuImage("Jade",1)
-addMenuImage("garlic chive", 0)
-addMenuImage("seaweed", 3)
-addMenuImage("chicken noodle soup", 4)
-addMenuImage("fragrant snow", 8)
-addMenuImage("Four-layered dip", 5)
-addMenuImage("baked sweet potato", 7)
-addMenuImage("ocean", 6)
+addMenuImage("Jade","ruIj52U") # ruIj52U
+addMenuImage("garlic chive", "3L3kK3q") # 3L3kK3q
+addMenuImage("seaweed", "YL4RcmB") # YL4RcmB
+addMenuImage("chicken noodle soup", "jTeOF8R") # jTeOF8R
+addMenuImage("fragrant snow", "x4MReA4") # x4MReA4
+addMenuImage("Four-layered dip", "DD7vpz3") # DD7vpz3 ; green tea A4dfMST
+addMenuImage("baked sweet potato", "3xnP7rV") # 3xnP7rV
+addMenuImage("ocean", "Zdld97L") # Zdld97L
 
 
 # populate conditions
@@ -201,9 +212,7 @@ if session.query(Condition).filter_by(name="constipation").first() is None:
 
 # verify the presence of kabocha menu
 kabocha_menu = session.query(MenuItem).filter(MenuItem.name.like('%kabocha%')).first()
-print "kabocha?", kabocha_menu.description
-
-
+# print "kabocha?", kabocha_menu.description
 
 # for album in client.get_account_albums('me'):
 # album_title = album.title if album.title else 'Untitled'
@@ -212,5 +221,3 @@ print "kabocha?", kabocha_menu.description
 # for image in client.get_album_images(album.id):
 #     image_title = image.title if image.title else 'Untitled'
 #     print('\t{0}: {1}'.format(image_title, image.link))
-
-
