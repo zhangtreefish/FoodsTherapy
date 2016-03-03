@@ -38,8 +38,8 @@ APPLICATION_NAME = "Therapeutic Foods"
 image_path_default = 'chive.jpg'
 
 album_title = 'menu' # can not specify album_id
-
-album_id = None
+client = authenticate()
+# album_id = None
 # # create an album for registered user in imgur.com
 def create_album(client, album_title):
     """create an album for registered user in imgur.com"""
@@ -72,6 +72,7 @@ def create_album(client, album_title):
             return album_id
     return album
 
+album_id = create_album(client, 'healthy menus album')
 
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
@@ -625,9 +626,9 @@ def newMenu(restaurant_id):
         session.commit()
         # global album_id
         # album_id = None
-        client = authenticate()
+        # client = authenticate()
         # if album_id is None:
-        album_id = create_album(client, 'March-3 menu album')
+        # album_id = create_album(client, 'March-3 menu album')
         upload_and_populate_image(myNewMenu, client, album_id, request.form['newName'], request.form['newImage'])
 
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
@@ -653,7 +654,7 @@ def editMenu(restaurant_id, menu_id):
         # myNewCondition = Condition(name=request.form['newConditions'])
         # session.add(myNewCondition)
         # laMenu.conditions.append(myNewCondition)
-        client = authenticate()
+        # client = authenticate()
         upload_and_populate_image(laMenu, client, album_id, request.form['newName'], request.form['newImage'])
         session.add(laMenu)
         session.commit()
@@ -800,7 +801,7 @@ def newConditionMenu(condition_id):
         session.add(newConditionMenu)
         session.commit()
         album_id = create_album_simple('new menu album')
-        client = authenticate()
+        # client = authenticate()
         upload_and_populate_image(newConditionMenu, client, album_id, request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
               'message')
