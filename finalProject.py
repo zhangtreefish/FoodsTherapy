@@ -39,6 +39,7 @@ image_path_default = 'chive.jpg'
 
 album_title = 'menu' # can not specify album_id
 client = authenticate()
+
 # album_id = None
 # # create an album for registered user in imgur.com
 def create_album(client, album_title):
@@ -112,7 +113,7 @@ def prettify(elem):
     """Return a pretty-printed XML string for the Element."""
     rough_string = ET.tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
-    return reparsed.toprettyxml(indent="  ")# The server creates anti-forgery state token and sends to the client
+    return reparsed.toprettyxml(indent="  ")
 
 
 # A decorator is a function that returns a function.
@@ -221,11 +222,6 @@ def gconnect():
     # Validate state token:check what client sent is what server sent
     if request.args.get('state') != login_session['state']:
         return jsonify(message='Invalid state parameter.'), 401
-    # if request.args.get('state') != login_session['state']:
-    #     # dumps:Serialize obj to a JSON formatted str
-    #     response = make_response(json.dumps('Invalid state parameter.'), 401)
-    #     response.headers['Content-Type'] = 'application/json'
-    #     return response
     # Obtain the one-time authorization code from the authorization server
     code = request.data
     print 'code:',code
@@ -239,7 +235,8 @@ def gconnect():
         # exchanges an authorization code for a Credentials object
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        return jsonify(message='Failed to upgrade the authorization code.'), 401
+        return jsonify(message='Failed to upgrade the authorization \
+            code.'), 401
 
     # Check that the access token is valid.
     # A Credentials object holds refresh and access tokens that authorize
@@ -308,7 +305,8 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     output += '">'
-    flash("you are now logged in as %s" % login_session['username'], 'message')
+    flash("you are now logged in as %s" % login_session['username'],
+        'message')
     print "done gconnect!"
     return output
 
@@ -323,7 +321,7 @@ def gdisconnect():
 
     # Execute HTTP GET request to revoke current token
     access_token = login_session.get('access_token')
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s'
         % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')
@@ -629,10 +627,12 @@ def newMenu(restaurant_id):
         # client = authenticate()
         # if album_id is None:
         # album_id = create_album(client, 'March-3 menu album')
-        upload_and_populate_image(myNewMenu, client, album_id, request.form['newName'], request.form['newImage'])
+        upload_and_populate_image(myNewMenu, client, album_id, request.form['n\
+            ewName'], request.form['newImage'])
 
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
-        flash('New condition ' + myNewCondition.name + ' has been created!', 'message')
+        flash('New condition ' + myNewCondition.name + ' has been created!',
+              'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
         return render_template('newMenuItem.html', restaurant_id=restaurant_id,
@@ -655,7 +655,8 @@ def editMenu(restaurant_id, menu_id):
         # session.add(myNewCondition)
         # laMenu.conditions.append(myNewCondition)
         # client = authenticate()
-        upload_and_populate_image(laMenu, client, album_id, request.form['newName'], request.form['newImage'])
+        upload_and_populate_image(laMenu, client, album_id, request.form['new\
+            Name'], request.form['newImage'])
         session.add(laMenu)
         session.commit()
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
@@ -692,14 +693,15 @@ def showConditions():
     try:
         # The filter_by() method always have to use '=' with it.
         # conditions = session.query(Condition).filter_by(name=None).all()
-        conditions = session.query(Condition).filter(Condition.name != None).all()
+        conditions = session.query(Condition).filter(Condition.name != None)
+            .all()
         if login_session.get('user_id') is None:
             return render_template('conditionsPublic.html',
                                    conditions=conditions)
         else:
             owner = getUserInfo(createUser(login_session))
-            return render_template('conditions.html', conditions=conditions,
-                                   user=owner)
+            return render_template(
+                'conditions.html', conditions=conditions, user=owner)
 
     except IOError as err:
         return "No conditions, error:"
@@ -730,18 +732,20 @@ def conditionEdit(condition_id):
     """lets a user edit own health condition"""
     try:
         # Why first_or_404 does not work
-        laCondition = session.query(Condition).filter_by(id=condition_id).first()
-        if laCondition:
+        laCond = session.query(Condition).filter_by(id=condition_id).first()
+        if laCond:
             if request.method == 'POST':
-                laCondition.name = request.form['newName']
-                laCondition.signs_and_symptoms = request.form['newSignsAndSymptoms']
-                session.add(laCondition)
+                laCond.name = request.form['newName']
+                laCond.signs_and_symptoms = request.form['newSignsAndSymptoms']
+                session.add(laCond)
                 session.commit()
-                flash('the condition '+laCondition.name+' has been edited!', 'message')
+                flash('the condition '+laCond.name+' has been edited!',
+                      'message')
                 return redirect(url_for('showConditions'))
             else:
-                return render_template('editCondition.html', condition_id=condition_id,
-                                       condition=laCondition)
+                return render_template('editCondition.html',
+                                        condition_id=condition_id,
+                                        condition=laCond)
     except IOError as err:
         return "No condition edited", 404
 
@@ -802,7 +806,8 @@ def newConditionMenu(condition_id):
         session.commit()
         album_id = create_album_simple('new menu album')
         # client = authenticate()
-        upload_and_populate_image(newConditionMenu, client, album_id, request.form['newName'], request.form['newImage'])
+        upload_and_populate_image(newConditionMenu, client, album_id,
+            request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
               'message')
         return redirect(url_for('conditionMenus', condition_id=condition_id))
