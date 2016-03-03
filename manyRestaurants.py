@@ -170,7 +170,7 @@ def addMenuImage(menu_name, image_id):
                 img_link = i.link
 
         menu.image = img_link
-        print "link:", menu_image
+        print "menu image link:", menu.image
         session.add(menu)
         session.commit()
     except:
@@ -204,11 +204,11 @@ if session.query(Condition).filter_by(name="constipation").first() is None:
             description="kabocha brushed with coconut oil roasted to a rich texture",
             price="$3.00",
             course="vegetable",
+            image="http://i.imgur.com/71kZSj7.jpg", #can set the image here
             restaurant=mySecondRestaurant)
     constipation.suggested_menus.append(kabocha)
     session.add(constipation)
     session.commit()
-addMenuImage("baked kabocha squash", "71kZSj7")
 
 # verify the presence of kabocha menu
 kabocha_menu = session.query(MenuItem).filter(MenuItem.name.like('%kabocha%')).first()
