@@ -21,6 +21,7 @@ import xml.dom.minidom as minidom
 from os import linesep
 from auth import authenticate
 from datetime import datetime
+from create_album import create_album_simple
 
 
 # if just do 'from manyRestaurants import Restaurant, session' and without the
@@ -38,31 +39,37 @@ APPLICATION_NAME = "Therapeutic Foods"
 image_path_default = 'chive.jpg'
 
 album_title = 'menu' # can not specify album_id
-album_config = {
-    'title': album_title,
-    # 'title': '',
-    'description': 'images of menus {0}'.format(datetime.now())
-}
 
 album_id = None
-# build client object
-client = authenticate()
-albums = client.get_account_albums('me')
-no_menu_album = True
-for i in albums:
-    print i
-    if i.title == album_title:
-        album_id = i.id
-        no_menu_album = False
-        break
+# # create an album for registered user in imgur.com
+# def create_album(album_title):
+#     """create an album for registered user in imgur.com"""
 
-# print "album1", album #works
-if no_menu_album:
-    client.create_album(album_config)
-    album_ids = client.get_account_album_ids('me')
-    album_count = client.get_account_album_count('me')
-    print "album2", album_ids
-    album_id = album_ids[album_count-1]
+#     album_config = {
+#     'title': album_title,
+#     'description': 'images of menus {0}'.format(datetime.now())
+#     }
+
+#     client = authenticate()
+#     # check if titled album already exist
+#     albums = client.get_account_albums('me')
+#     no_album = True
+#     for a in albums:
+#         print a
+#         if a.title == album_title:
+#             album_id = a.id
+#             no_album = False
+#             break
+
+#     # print "album1", album #works
+#     if no_album:
+#         album=client.create_album(album_config)
+#         albums = client.get_account_albums('me')
+#         for a in albums:
+#             if a.title == album_title:
+#                 album_id = a.id
+#                 break
+#     return album_id
 
 
 def createUser(login_session):
@@ -134,7 +141,7 @@ def login_and_condition_required(f):
     """to wrap methods requiring login as the creator of the condition"""
     @wraps(f)
     def decorated_function(condition_id, *args, **kwargs):
-        condition = session.query(Restaurant).filter_by(id=condition_id).one()
+        condition = session.query(Condition).filter_by(id=condition_id).one()
         user = login_session.get('user_id')
         if user is None or user != condition.user_id:
             flash ('only the creator of the condition has this right.')
@@ -185,15 +192,16 @@ def upload_and_populate_image(menu, client, album_id, image_name, image_path):
 
     # access the image
     images = client.get_album_images(album_id)
-    image = None
+    image_link = None
     for i in images:
         if i.name == image_name:
-            image = i
+            image_link = i.link
             break
     # assign the image to menu image property
-    menu.image = image.link
-
-    return image
+    menu.image = image_link
+    session.add(menu)
+    session.commit()
+    # return image_link
 
 
 @app.route('/login/')
@@ -599,21 +607,25 @@ def newMenu(restaurant_id):
     """lets a restaurant owner create a new menu"""
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
+        myNewCondition = Condition(name=request.form['newConditions'])
+        session.add(myNewCondition)
+        session.commit()
+
         myNewMenu = MenuItem(
             name=request.form['newName'],
             course=request.form['newCourse'],
             description=request.form['newDescription'],
             price=request.form['newPrice'],
             restaurant_id=restaurant_id)
-        myNewCondition = Condition(name=request.form['newConditions'])
-        session.add(myNewCondition)
         myNewMenu.conditions.append(myNewCondition)
-
-        upload_and_populate_image(myNewMenu, client, album_id, request.form['newName'], request.form['newImage'])
         session.add(myNewMenu)
         session.commit()
+        if album_id is None:
+            album_id = create_album_simple('new menu album')
+        upload_and_populate_image(myNewMenu, client, album_id, request.form['newName'], request.form['newImage'])
 
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
+        flash('New condition ' + myNewCondition.name + ' has been created!', 'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
         return render_template('newMenuItem.html', restaurant_id=restaurant_id,
@@ -670,7 +682,9 @@ def deleteMenu(restaurant_id, menu_id):
 def showConditions():
     """lists of health conditions, varies upon user login status"""
     try:
-        conditions = session.query(Condition).all()
+        # The filter_by() method always have to use '=' with it.
+        # conditions = session.query(Condition).filter_by(name=None).all()
+        conditions = session.query(Condition).filter(Condition.name != None).all()
         if login_session.get('user_id') is None:
             return render_template('conditionsPublic.html',
                                    conditions=conditions)
@@ -707,6 +721,7 @@ def newCondition():
 def conditionEdit(condition_id):
     """lets a user edit own health condition"""
     try:
+        # Why first_or_404 does not work
         laCondition = session.query(Condition).filter_by(id=condition_id).first()
         if laCondition:
             if request.method == 'POST':
@@ -777,6 +792,9 @@ def newConditionMenu(condition_id):
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()
+        album_id = create_album_simple('new menu album')
+        client = authenticate()
+        upload_and_populate_image(newConditionMenu, client, album_id, request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
               'message')
         return redirect(url_for('conditionMenus', condition_id=condition_id))
