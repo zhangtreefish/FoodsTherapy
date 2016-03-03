@@ -20,8 +20,8 @@
 				    <b class='col-xs-12'> {{i.course}}</b>
 			    	<span class='col-xs-9'>{{i.name}}</span>  <!--span keeps stuff close together -->
 			    	<span class='col-xs-3' style="text-align:right;color:green">{{i.price}}</span>
+			    	<i class='col-xs-12'>{{i.description}}</i>
 			    	<img src='{{i.image}}' alt='menu_pic' width='220' />
-					<i class='col-xs-12'>{{i.description}}</i>
 					<span class='col-xs-9'> being offered at restaurant: {{i.restaurant_id}} </span>
 					<button class='btn btn-info'>
 						<a href='{{url_for('showMenus', restaurant_id=i.restaurant.id)}}'> Let us go!

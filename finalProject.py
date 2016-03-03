@@ -19,9 +19,7 @@ from xml.etree.ElementTree import Element, SubElement
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 from os import linesep
-# from manyRestaurants import addMenuImage
-import uploadImage
-import auth
+from auth import authenticate
 from datetime import datetime
 
 
@@ -39,37 +37,43 @@ G_CLIENT_ID = json.loads(
 APPLICATION_NAME = "Therapeutic Foods"
 image_path_default = 'chive.jpg'
 
-# client = auth.authenticate()
-# album_id = 'menu'
-# create_menu_album(client, album_id)
 album_title = 'menu' # can not specify album_id
+client = authenticate()
 
-album_config = {
+# album_id = None
+# # create an album for registered user in imgur.com
+def create_album(client, album_title):
+    """create an album for registered user in imgur.com"""
+
+    global album_id
+    album_config = {
     'title': album_title,
-    # 'title': '',
     'description': 'images of menus {0}'.format(datetime.now())
-}
+    }
 
-album_id = None
-# build client object
-client = auth.authenticate()
-albums = client.get_account_albums('me')
-no_menu_album = True
-for i in albums:
-    print i
-    if i.title == album_title:
-        album_id = i.id
-        no_menu_album = False
-        break
+    # check if titled album already exist
+    # albums = client.get_account_albums('me')
+    # no_album = True
+    # for a in albums:
+    #     print a
+    #     if a.title == album_title:
+    #         album_id = a.id
+    #         no_album = False
+    #         break
 
-# print "album1", album #works
-if no_menu_album:
-    client.create_album(album_config)
-    album_ids = client.get_account_album_ids('me')
-    album_count = client.get_account_album_count('me')
-    print "album2", album_ids
-    album_id = album_ids[album_count-1]
+    # print "album1", album #works
+    # if no_album:
+    album_id = client.create_album(album_config)
+    print "album)id:", album_id
+    updated_albums = client.get_account_albums('me')
+    for a in updated_albums:
+        if a.title == album_title:
+            album_id = a.id
+            print "working album_id", album_id
+            return album_id
+    return album
 
+album_id = create_album(client, 'healthy menus album')
 
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
@@ -109,7 +113,7 @@ def prettify(elem):
     """Return a pretty-printed XML string for the Element."""
     rough_string = ET.tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
-    return reparsed.toprettyxml(indent="  ")# The server creates anti-forgery state token and sends to the client
+    return reparsed.toprettyxml(indent="  ")
 
 
 # A decorator is a function that returns a function.
@@ -140,7 +144,7 @@ def login_and_condition_required(f):
     """to wrap methods requiring login as the creator of the condition"""
     @wraps(f)
     def decorated_function(condition_id, *args, **kwargs):
-        condition = session.query(Restaurant).filter_by(id=condition_id).one()
+        condition = session.query(Condition).filter_by(id=condition_id).one()
         user = login_session.get('user_id')
         if user is None or user != condition.user_id:
             flash ('only the creator of the condition has this right.')
@@ -164,32 +168,43 @@ def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     Upload a picture of the menu item to the app author's Menu Image album at
      imgur.com and populate the image attribute of a menuItem with it
     '''
-
+    # configure fields for image
     img_config = {
         'album': album_id,
         'name':  image_name,
-        'title': '',
-        'description': ' on date {0}'.format(datetime.now())
+        'title': image_name,
+        'description': 'on date {0}'.format(datetime.now())
     }
-
-    print("Uploading image... ")
-    image = client.upload_from_path(image_path, config=img_config, anon=False)
-    print('Done. Image:', image)
-    # return image
-    count = client.get_album(album_id).images_count
-    print "count:", count
-    last_image_index = count-1
+    # check if image is already in the album
     images = client.get_album_images(album_id)
-    # finally set the image property for myNewMenu
-    image = None
+    image_not_in_album = True
+    ids=None
+    for i in images:
+        print 'item list',i.id,i.link
+        if i.name == image_name:
+            ids=i.id
+            image_not_in_album = False
+            break
+    # upload from file path to the imgur album if not already present
+    if image_not_in_album:
+        client.upload_from_path(image_path, config=img_config, anon=False)
+    # replace if already present
+    else:
+        client.album_remove_images(album_id, ids)
+        client.upload_from_path(image_path, config=img_config, anon=False)
+
+    # access the image
+    images = client.get_album_images(album_id)
+    image_link = None
     for i in images:
         if i.name == image_name:
-            image = i
+            image_link = i.link
             break
-
-    # menu.image = images[last_image_index].link
-    menu.image = image.link
-    return image
+    # assign the image to menu image property
+    menu.image = image_link
+    session.add(menu)
+    session.commit()
+    # return image_link
 
 
 @app.route('/login/')
@@ -207,11 +222,6 @@ def gconnect():
     # Validate state token:check what client sent is what server sent
     if request.args.get('state') != login_session['state']:
         return jsonify(message='Invalid state parameter.'), 401
-    # if request.args.get('state') != login_session['state']:
-    #     # dumps:Serialize obj to a JSON formatted str
-    #     response = make_response(json.dumps('Invalid state parameter.'), 401)
-    #     response.headers['Content-Type'] = 'application/json'
-    #     return response
     # Obtain the one-time authorization code from the authorization server
     code = request.data
     print 'code:',code
@@ -225,7 +235,8 @@ def gconnect():
         # exchanges an authorization code for a Credentials object
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        return jsonify(message='Failed to upgrade the authorization code.'), 401
+        return jsonify(message='Failed to upgrade the authorization \
+            code.'), 401
 
     # Check that the access token is valid.
     # A Credentials object holds refresh and access tokens that authorize
@@ -294,7 +305,8 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     output += '">'
-    flash("you are now logged in as %s" % login_session['username'], 'message')
+    flash("you are now logged in as %s" % login_session['username'],
+        'message')
     print "done gconnect!"
     return output
 
@@ -309,7 +321,7 @@ def gdisconnect():
 
     # Execute HTTP GET request to revoke current token
     access_token = login_session.get('access_token')
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s'
         % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')
@@ -593,23 +605,34 @@ def showMenus(restaurant_id):
 @login_and_restauranter_required
 def newMenu(restaurant_id):
     """lets a restaurant owner create a new menu"""
+    # set album_id as global so that editMenu  can access it
+    global album_id
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
+        myNewCondition = Condition(name=request.form['newConditions'])
+        session.add(myNewCondition)
+        session.commit()
+
         myNewMenu = MenuItem(
             name=request.form['newName'],
             course=request.form['newCourse'],
             description=request.form['newDescription'],
             price=request.form['newPrice'],
             restaurant_id=restaurant_id)
-        myNewCondition = Condition(name=request.form['newConditions'])
-        session.add(myNewCondition)
         myNewMenu.conditions.append(myNewCondition)
-
-        upload_and_populate_image(myNewMenu, client, album_id, request.form['newName'], request.form['newImage'])
         session.add(myNewMenu)
         session.commit()
+        # global album_id
+        # album_id = None
+        # client = authenticate()
+        # if album_id is None:
+        # album_id = create_album(client, 'March-3 menu album')
+        upload_and_populate_image(myNewMenu, client, album_id, request.form['n\
+            ewName'], request.form['newImage'])
 
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
+        flash('New condition ' + myNewCondition.name + ' has been created!',
+              'message')
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
         return render_template('newMenuItem.html', restaurant_id=restaurant_id,
@@ -631,7 +654,9 @@ def editMenu(restaurant_id, menu_id):
         # myNewCondition = Condition(name=request.form['newConditions'])
         # session.add(myNewCondition)
         # laMenu.conditions.append(myNewCondition)
-        upload_and_populate_image(laMenu, client, album_id, request.form['newName'], request.form['newImage'])
+        # client = authenticate()
+        upload_and_populate_image(laMenu, client, album_id, request.form['new\
+            Name'], request.form['newImage'])
         session.add(laMenu)
         session.commit()
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
@@ -666,14 +691,17 @@ def deleteMenu(restaurant_id, menu_id):
 def showConditions():
     """lists of health conditions, varies upon user login status"""
     try:
-        conditions = session.query(Condition).all()
+        # The filter_by() method always have to use '=' with it.
+        # conditions = session.query(Condition).filter_by(name=None).all()
+        conditions = session.query(Condition).filter(Condition.name != None)
+            .all()
         if login_session.get('user_id') is None:
             return render_template('conditionsPublic.html',
                                    conditions=conditions)
         else:
             owner = getUserInfo(createUser(login_session))
-            return render_template('conditions.html', conditions=conditions,
-                                   user=owner)
+            return render_template(
+                'conditions.html', conditions=conditions, user=owner)
 
     except IOError as err:
         return "No conditions, error:"
@@ -703,18 +731,21 @@ def newCondition():
 def conditionEdit(condition_id):
     """lets a user edit own health condition"""
     try:
-        laCondition = session.query(Condition).filter_by(id=condition_id).one()
-        if laCondition:
+        # Why first_or_404 does not work
+        laCond = session.query(Condition).filter_by(id=condition_id).first()
+        if laCond:
             if request.method == 'POST':
-                laCondition.name = request.form['newName']
-                laCondition.signs_and_symptoms = request.form['newSignsAndSymptoms']
-                session.add(laCondition)
+                laCond.name = request.form['newName']
+                laCond.signs_and_symptoms = request.form['newSignsAndSymptoms']
+                session.add(laCond)
                 session.commit()
-                flash('the condition '+laCondition.name+' has been edited!', 'message')
+                flash('the condition '+laCond.name+' has been edited!',
+                      'message')
                 return redirect(url_for('showConditions'))
             else:
-                return render_template('editCondition.html', condition_id=condition_id,
-                                       condition=laCondition)
+                return render_template('editCondition.html',
+                                        condition_id=condition_id,
+                                        condition=laCond)
     except IOError as err:
         return "No condition edited", 404
 
@@ -773,6 +804,10 @@ def newConditionMenu(condition_id):
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()
+        album_id = create_album_simple('new menu album')
+        # client = authenticate()
+        upload_and_populate_image(newConditionMenu, client, album_id,
+            request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
               'message')
         return redirect(url_for('conditionMenus', condition_id=condition_id))
