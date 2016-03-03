@@ -12,13 +12,13 @@ from datetime import datetime
 # access menu images in the app author's menu album (id 'risa2')at imgur.com
 client = authenticate()
 ids = client.get_account_album_ids('Zhangtreefish')
-for a in ids:
-    print 'album:',a
-    images = client.get_album_images(a)
-    for i in images:
-        print 'itme list;', i.id,i.link, i.name
+# for a in ids:
+#     print 'album:',a
+#     images = client.get_album_images(a)
+#     for i in images:
+#         print 'itme list;', i.id,i.link, i.name
 album_id = 'risa2'
-print "album_id:!!!!!!!!!!", album_id
+# print "album_id:!!!!!!!!!!", album_id
 images = client.get_album_images(album_id)
 for i in images:
     print 'itme list;', i.id,i.link
@@ -205,14 +205,14 @@ if session.query(Condition).filter_by(name="constipation").first() is None:
             price="$3.00",
             course="vegetable",
             restaurant=mySecondRestaurant)
-        addMenuImage("baked kabocha squash",2)
     constipation.suggested_menus.append(kabocha)
     session.add(constipation)
     session.commit()
+addMenuImage("baked kabocha squash", "71kZSj7")
 
 # verify the presence of kabocha menu
 kabocha_menu = session.query(MenuItem).filter(MenuItem.name.like('%kabocha%')).first()
-# print "kabocha?", kabocha_menu.description
+print "kabocha?", kabocha_menu
 
 # for album in client.get_account_albums('me'):
 # album_title = album.title if album.title else 'Untitled'
