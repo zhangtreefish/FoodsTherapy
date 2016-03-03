@@ -21,7 +21,6 @@ import xml.dom.minidom as minidom
 from os import linesep
 from auth import authenticate
 from datetime import datetime
-from create_album import create_album_simple
 
 
 # if just do 'from manyRestaurants import Restaurant, session' and without the
@@ -42,34 +41,36 @@ album_title = 'menu' # can not specify album_id
 
 album_id = None
 # # create an album for registered user in imgur.com
-# def create_album(album_title):
-#     """create an album for registered user in imgur.com"""
+def create_album(client, album_title):
+    """create an album for registered user in imgur.com"""
 
-#     album_config = {
-#     'title': album_title,
-#     'description': 'images of menus {0}'.format(datetime.now())
-#     }
+    global album_id
+    album_config = {
+    'title': album_title,
+    'description': 'images of menus {0}'.format(datetime.now())
+    }
 
-#     client = authenticate()
-#     # check if titled album already exist
-#     albums = client.get_account_albums('me')
-#     no_album = True
-#     for a in albums:
-#         print a
-#         if a.title == album_title:
-#             album_id = a.id
-#             no_album = False
-#             break
+    # check if titled album already exist
+    # albums = client.get_account_albums('me')
+    # no_album = True
+    # for a in albums:
+    #     print a
+    #     if a.title == album_title:
+    #         album_id = a.id
+    #         no_album = False
+    #         break
 
-#     # print "album1", album #works
-#     if no_album:
-#         album=client.create_album(album_config)
-#         albums = client.get_account_albums('me')
-#         for a in albums:
-#             if a.title == album_title:
-#                 album_id = a.id
-#                 break
-#     return album_id
+    # print "album1", album #works
+    # if no_album:
+    album_id = client.create_album(album_config)
+    print "album)id:", album_id
+    updated_albums = client.get_account_albums('me')
+    for a in updated_albums:
+        if a.title == album_title:
+            album_id = a.id
+            print "working album_id", album_id
+            return album_id
+    return album
 
 
 def createUser(login_session):
@@ -605,6 +606,8 @@ def showMenus(restaurant_id):
 @login_and_restauranter_required
 def newMenu(restaurant_id):
     """lets a restaurant owner create a new menu"""
+    # set album_id as global so that editMenu  can access it
+    global album_id
     rest = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
         myNewCondition = Condition(name=request.form['newConditions'])
@@ -620,8 +623,11 @@ def newMenu(restaurant_id):
         myNewMenu.conditions.append(myNewCondition)
         session.add(myNewMenu)
         session.commit()
-        if album_id is None:
-            album_id = create_album_simple('new menu album')
+        # global album_id
+        # album_id = None
+        client = authenticate()
+        # if album_id is None:
+        album_id = create_album(client, 'March-3 menu album')
         upload_and_populate_image(myNewMenu, client, album_id, request.form['newName'], request.form['newImage'])
 
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
@@ -647,6 +653,7 @@ def editMenu(restaurant_id, menu_id):
         # myNewCondition = Condition(name=request.form['newConditions'])
         # session.add(myNewCondition)
         # laMenu.conditions.append(myNewCondition)
+        client = authenticate()
         upload_and_populate_image(laMenu, client, album_id, request.form['newName'], request.form['newImage'])
         session.add(laMenu)
         session.commit()

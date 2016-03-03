@@ -47,18 +47,19 @@ def create_album(album_title):
                 return album_id
 
 
-def create_album_simple(album_title):
+def create_album_simple(client, album_title):
     """
     create an album for registered user in imgur.com,
     return value is album id
     """
+    global album_id
     album_config = {
     'title': album_title,
     'description': 'images of menus {0}'.format(datetime.now())
     }
     # client = authenticate()
     # check if titled album already exist
-    client = authenticate()
+    # client = authenticate()
     client.create_album(album_config)
     albums = client.get_account_albums('me')
     for a in albums:
