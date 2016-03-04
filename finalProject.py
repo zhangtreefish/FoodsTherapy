@@ -37,7 +37,7 @@ G_CLIENT_ID = json.loads(
 APPLICATION_NAME = "Therapeutic Foods"
 image_path_default = 'chive.jpg'
 
-album_title = 'menu' # can not specify album_id
+album_title = 'therapeutic menus' # can not specify album_id
 client = authenticate()
 
 
@@ -162,7 +162,7 @@ def login_and_condition_required(f):
 #     flash ('Album  created')
 
 
-def upload_and_populate_image(menu, client, album_id, image_name, image_path=image_path_default):
+def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     '''
     Upload a picture of the menu item to the app author's Menu Image album at
      imgur.com and populate the image attribute of a menuItem with it
@@ -234,8 +234,7 @@ def gconnect():
         # exchanges an authorization code for a Credentials object
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        return jsonify(message='Failed to upgrade the authorization \
-            code.'), 401
+        return jsonify(message='Failed to upgrade the authorization code.'), 401
 
     # Check that the access token is valid.
     # A Credentials object holds refresh and access tokens that authorize
@@ -243,8 +242,7 @@ def gconnect():
     # .Http objects to authorize access.
     # print 'credentials:', credentials
     access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
-           % access_token)
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
     h = httplib2.Http()
     # loads:Deserialize to a Python object
     g_result = json.loads(h.request(url, 'GET')[1])
@@ -262,8 +260,7 @@ def gconnect():
     # the user.
     gplus_id = credentials.id_token['sub']
     if g_result['user_id'] != gplus_id:
-        return jsonify(message="Token's user ID doesn't match given user \
-                        ID."), 401
+        return jsonify(message="Token's user ID doesn't match given user ID."), 401
 
     # Verify that the access token is valid for this app.
     if g_result['issued_to'] != G_CLIENT_ID:
@@ -304,8 +301,7 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     output += '">'
-    flash("you are now logged in as %s" % login_session['username'],
-        'message')
+    flash("you are now logged in as %s" % login_session['username'], 'message')
     print "done gconnect!"
     return output
 
@@ -624,9 +620,9 @@ def newMenu(restaurant_id):
         # client = authenticate()
         # if album_id is None:
         # album_id = create_album(client, 'March-3 menu album')
-        upload_and_populate_image(myNewMenu, client, album_id, request.form['n\
-            ewName'], request.form['newImage'])
-
+        upload_and_populate_image(
+            myNewMenu, client, album_id, request.form['newName'],
+            request.form['newImage'])
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
         flash('New condition ' + myNewCondition.name + ' has been created!',
               'message')
@@ -652,8 +648,9 @@ def editMenu(restaurant_id, menu_id):
         # session.add(myNewCondition)
         # laMenu.conditions.append(myNewCondition)
         # client = authenticate()
-        upload_and_populate_image(laMenu, client, album_id, request.form['new\
-            Name'], request.form['newImage'])
+        upload_and_populate_image(
+            laMenu, client, album_id, request.form['newName'],
+            request.form['newImage'])
         session.add(laMenu)
         session.commit()
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
