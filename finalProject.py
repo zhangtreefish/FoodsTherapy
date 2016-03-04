@@ -36,7 +36,7 @@ G_CLIENT_ID = json.loads(
 APPLICATION_NAME = "Therapeutic Foods"
 
 album_title = 'therapeutic menus' # can not specify album_id
-client = authenticate()
+# client = authenticate()
 
 
 def create_album(client, album_title):
@@ -58,7 +58,7 @@ def create_album(client, album_title):
             return album_id
     return album
 
-album_id = create_album(client, album_title)
+# album_id = create_album(client, album_title)
 
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
@@ -190,6 +190,11 @@ def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     session.add(menu)
     session.commit()
     # return image_link
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
 
 
 @app.route('/login/')
@@ -472,10 +477,6 @@ def showRestaurants():
     #     flash("This page will show all my restaurants", "message")
 
 
-# @app.errorhandler(404)   # //todo:error msg: got invalid syntax.
-# def page_not_found(e):
-#     return render_template('404.html'), 404
-
 @app.route('/restaurants/new/', methods=['POST', 'GET'])
 @login_required
 def restaurantNew():
@@ -515,6 +516,7 @@ def restaurantEdit(restaurant_id):
 
 @app.route('/restaurants/<int:restaurant_id>/delete/', methods=['POST', 'GET'])
 @login_and_restauranter_required
+@app.errorhandler(404)
 def restaurantDelete(restaurant_id):
     """let a logged-in user delete his or her own restaurant"""
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -706,6 +708,7 @@ def newCondition():
 
 @app.route('/conditions/<int:condition_id>/edit', methods=['POST', 'GET'])
 @login_and_condition_required
+@app.errorhandler(404)
 def conditionEdit(condition_id):
     """lets a user edit own health condition"""
     try:
@@ -730,6 +733,7 @@ def conditionEdit(condition_id):
 
 @app.route('/conditions/<int:condition_id>/delete', methods=['POST', 'GET'])
 @login_and_condition_required
+@app.errorhandler(404)
 def conditionDelete(condition_id):
     """lets a user delete own health condition"""
     try:
@@ -748,6 +752,7 @@ def conditionDelete(condition_id):
 
 
 @app.route('/conditions/<int:condition_id>/menu/')
+@app.errorhandler(404)
 def conditionMenus(condition_id):
     """lists all menus suitable for a condition"""
     try:
@@ -798,8 +803,6 @@ def newConditionMenu(condition_id):
 
 
 if __name__ == '__main__':
-    # TODO: set to False before deployment: enable debug so the server
-    # reloads itself on code changes
     # set up logging
     logger = logging.getLogger()
     handler = logging.StreamHandler()
@@ -809,7 +812,12 @@ if __name__ == '__main__':
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
     logger.debug('often makes a very good meal of %s', 'visiting tourists')
+    # set up album
+    client = authenticate()
+    album_id = create_album(client, album_title)
 
     app.secret_key = 'super_secret_key'
+    # TODO: set to False before deployment: enable debug so the server
+    # reloads itself on code changes
     app.debug = True
     app.run(host='0.0.0.0', port=5000)

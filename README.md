@@ -14,7 +14,7 @@ twice to reach the root (/), then cd vagrant/FoodsTherapy, pwd to verify /vagran
 
 Features of My Application
 
-1. A logged-in user can create, edit, and delete restaurants, menus offered by his or her own restaurant, and a list of health conditions that are associated with recommended menus. A logged-in user can also visit the restaurant serving a menu recommended for his or her conditions.
+1. A logged-in user can create, edit, and delete restaurants, menus offered by his or her own restaurant, and a list of health conditions that are associated with recommended menus.
 2. A non-registered user can look through all tabs (the restaurants,menu and conditions tabs) without logging in. The user can find menus offered by a partiuclar restaurant, menus recommended for certain health conditions, and a list of all the menus created by all users.
 3. All users can also visit the restaurant serving a menu recommended for certain condition.
 
@@ -22,7 +22,7 @@ Endpoints of My Application, APPLICATION_NAME = "Therapeutic Foods"
 
 album_title = 'therapeutic menus' # album the user creates at imgur when uploading image for menu
 
-# A decorator is a function that returns a function.
+A decorator is a function that returns a function.
 def login_required(f):
     """to wrap those methods that require login"""
 
@@ -31,6 +31,9 @@ def login_and_restauranter_required(f):
 
 def login_and_condition_required(f):
     """to wrap methods requiring login as the creator of the condition"""
+
+@app.errorhandler(404)
+def page_not_found(e):
 
 @app.route('/login/')
 def showLogin():
@@ -44,7 +47,6 @@ def gconnect():
 def gdisconnect():
     """disconnect from google +"""
 
-# TODO create user if have not yet
 @app.route('/fbconnect/', methods=['POST'])
 def fbconnect():
     """authenticate via FB"""
