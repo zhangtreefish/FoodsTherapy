@@ -35,7 +35,6 @@ G_CLIENT_ID = json.loads(
     open('client_secret.json', 'r').read())['web']['client_id']
 
 APPLICATION_NAME = "Therapeutic Foods"
-image_path_default = 'chive.jpg'
 
 album_title = 'therapeutic menus' # can not specify album_id
 client = authenticate()
