@@ -421,10 +421,9 @@ def fbdisconnect():
         return jsonify(message='Failed to revoke token for given user.'), 400
 
 
-# Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
-    """provides a logout method for users"""
+    """provides a logout method for users based on provider"""
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
