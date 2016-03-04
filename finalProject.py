@@ -40,8 +40,7 @@ image_path_default = 'chive.jpg'
 album_title = 'menu' # can not specify album_id
 client = authenticate()
 
-# album_id = None
-# # create an album for registered user in imgur.com
+
 def create_album(client, album_title):
     """create an album for registered user in imgur.com"""
 
@@ -64,7 +63,7 @@ def create_album(client, album_title):
     # print "album1", album #works
     # if no_album:
     album_id = client.create_album(album_config)
-    print "album)id:", album_id
+    print "album_id:", album_id
     updated_albums = client.get_account_albums('me')
     for a in updated_albums:
         if a.title == album_title:
@@ -163,7 +162,7 @@ def login_and_condition_required(f):
 #     flash ('Album  created')
 
 
-def upload_and_populate_image(menu, client, album_id, image_name, image_path):
+def upload_and_populate_image(menu, client, album_id, image_name, image_path=image_path_default):
     '''
     Upload a picture of the menu item to the app author's Menu Image album at
      imgur.com and populate the image attribute of a menuItem with it
@@ -321,8 +320,7 @@ def gdisconnect():
 
     # Execute HTTP GET request to revoke current token
     access_token = login_session.get('access_token')
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s'
-        % access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')
     # TODO: why 200 means to clear cache while'200' not
@@ -666,7 +664,6 @@ def editMenu(restaurant_id, menu_id):
             menu_id=menu_id, restaurant=rest, menu=laMenu)
 
 
-# @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/',
            methods=['GET', 'POST'])
 @login_and_restauranter_required
@@ -692,8 +689,7 @@ def showConditions():
     try:
         # The filter_by() method always have to use '=' with it.
         # conditions = session.query(Condition).filter_by(name=None).all()
-        conditions = session.query(Condition).filter(Condition.name != None)
-            .all()
+        conditions = session.query(Condition).filter(Condition.name != None).all()
         if login_session.get('user_id') is None:
             return render_template('conditionsPublic.html',
                                    conditions=conditions)
@@ -787,7 +783,7 @@ def conditionMenus(condition_id):
     except IOError as err:
         return "No menus available yet.", 404
 
-#  adds a menu suitable for certain condition to a restaurant
+
 @app.route('/conditions/<int:condition_id>/new/', methods=['GET', 'POST'])
 @login_and_condition_required
 def newConditionMenu(condition_id):
