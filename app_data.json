@@ -1,0 +1,76 @@
+{
+    "restaurants": [
+        {
+            "name":"Steam",
+            "description":"all things steamed"},
+        {
+            "name":"3Fs",
+            "description":"that features fiber,fitness, and fluid"},
+        {
+            "name":"Eden",
+            "description":"out of your dream garden"},
+        {
+            "name":"School Lunch",
+            "description":"balanced lunch for the precious bodies and minds"}
+    ],
+
+    "menus": [
+        {
+            "name": "Jade",
+            "description": "daikon steamed to a luscious texture",
+            "price": "$2.50",
+            "course": "vegetable",
+            "image": "http://i.imgur.com/ruIj52U.jpg"},
+        {
+            "name":"fragrant snow",
+            "description": "sweet rice flour balls encasing honey-infused sweet olive blossoms and coconut oil",
+            "price":"$4.00",
+            "course": "dessert",
+            "image": "http://i.imgur.com/x4MReA4.jpg"},
+        {
+            "name":"Four-layered dip",
+            "description": "organic black beans, avacado, tomato, cheese, dressed in lemon juice, served with tortilla chips",
+            "price":"$4.00",
+            "course":"One Complete Meal",
+            "image": "http://i.imgur.com/DD7vpz3.jpg"},
+        {
+            "name":"chicken noodle soup",
+            "description":"what else can you say? made with carrots, celery, onion,garlic, tomato, zucchini, and ginger root",
+            "price": "$5.00",
+            "course": "One Complete Meal",
+            "image": "http://i.imgur.com/jTeOF8R.jpg"},
+        {
+            "name":"seaweed",
+            "description":"Wakame salad in green onion, hemp heart, sesame oil, and salt,served with two pieces of baked tofu, and a baked sweet potato",
+            "price": "$5.00",
+            "course": "One Complete Meal",
+            "image": "http://i.imgur.com/YL4RcmB.jpg"},
+        {
+            "name":"ocean",
+            "description":"soup made of tilapia, celery, cilantro, green onion,garlic, tomato, zucchini, and ginger root",
+            "price": "$5.00",
+            "course":"One Complete Meal",
+            "image": "http://i.imgur.com/Zdld97L.jpg"},
+        {
+            "name":"baked sweet potato",
+            "description":"sweet potato baked at 350 for 45 minutes, with skin",
+            "price":"$3.00",
+            "course": "vegetable",
+            "image": "http://i.imgur.com/3xnP7rV.jpg"},
+        {
+            "name":"garlic chive",
+            "description":"garlic chive chopped and stir-fried with tofu, a traditional dish for problem of constipation",
+            "price":"$3.00",
+            "course": "vegetable",
+            "image": "http://i.imgur.com/3L3kK3q.jpg"}
+    ],
+
+    "conditions": [
+        {
+            "name": "diabetes",
+            "signs_and_symptoms": "thirst, fatigue, frequent urination, weight loss"},
+        {
+            "name": "gray hair",
+            "signs_and_symptoms": "natural graying of hair"}
+    ]
+}

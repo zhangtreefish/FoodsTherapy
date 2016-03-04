@@ -3,25 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Restaurant, MenuItem, Condition, User, Base, engine
 import json
 import logging
-import imgur_secret
-from imgurpython import ImgurClient
-from auth import authenticate
-from datetime import datetime
 
-
-# # access menu images in the app author's menu album (id 'risa2')at imgur.com
-# client = authenticate()
-# ids = client.get_account_album_ids('Zhangtreefish')
-# # for a in ids:
-# #     print 'album:',a
-# #     images = client.get_album_images(a)
-# #     for i in images:
-# #         print 'itme list;', i.id,i.link, i.name
-# album_id = 'risa2'
-# # print "album_id:!!!!!!!!!!", album_id
-# images = client.get_album_images(album_id)
-# for i in images:
-#     print 'itme list;', i.id,i.link
 
 # sessionmaker: a session factory generator (in other words, a function
 # that returns a function that returns a new Session for each call)
@@ -29,21 +11,26 @@ DBSession = sessionmaker(bind=engine)
 # Session: a container of instances of mapped classes
 session = DBSession()
 
-data1 = {
-    "restaurants": [
-        {"name":"Steam", "description":"all things steamed"},
-        {"name":'3Fs', "description":'that features fiber,fitness, and fluid'},
-        {"name":'Eden', "description":'out of your dream garden'},
-        {"name":'School Lunch',
-        "description":"balanced lunch for the precious bodies and minds"}
-    ]
-}
+data = json.loads(open('app_data.json', 'r').read())
+print "resta!!!!!", data["restaurants"][0]
+
+# data1 = {
+#     "restaurants": [
+#         {"name":"Steam", "description":"all things steamed"},
+#         {"name":'3Fs', "description":'that features fiber,fitness, and fluid'},
+#         {"name":'Eden', "description":'out of your dream garden'},
+#         {"name":'School Lunch',
+#         "description":"balanced lunch for the precious bodies and minds"}
+#     ]
+# }
 
 
 def populate(restaurant):
     """ populate a single restaurant, skip if already present"""
     if session.query(Restaurant).filter_by(name=restaurant["name"]).first() is None:
-        restaurant = Restaurant(name=restaurant["name"], description=restaurant["description"])
+        restaurant = Restaurant(
+            name=restaurant["name"],
+            description=restaurant["description"])
         session.add(restaurant)
         session.commit()
     else:
@@ -56,7 +43,9 @@ def populateRestaurants(restaurants):
         for i in range(len(restaurants)):
             rest = session.query(Restaurant).filter_by(name=restaurants[i]["name"]).first()
             if rest is None:
-                restaurant = Restaurant(name=restaurants[i]["name"], description=restaurants[i]["description"])
+                restaurant = Restaurant(
+                    name=restaurants[i]["name"],
+                    description=restaurants[i]["description"])
                 session.add(restaurant)
             session.commit()
     except:
@@ -64,60 +53,60 @@ def populateRestaurants(restaurants):
 
 
 # populate the restaurants
-populateRestaurants(data1["restaurants"])
+populateRestaurants(data["restaurants"])
 restaurant_num = session.query(Restaurant).count()
-# print 'number of restaurants populated:', restaurant_num
+print 'number of restaurants populated:', restaurant_num
 
 myFirstRestaurant = session.query(Restaurant).filter_by(name="Steam").first()
 mySecondRestaurant = session.query(Restaurant).filter_by(name="3Fs").first()
 myThirdRestaurant = session.query(Restaurant).filter_by(name="Eden").first()
 myFourthRestaurant = session.query(Restaurant).filter_by(name="School Lunch").first()
-# print "second:", mySecondRestaurant
+print "second????????????????:", mySecondRestaurant
 
-data2 = {
-    "menus": [
-        {"name": "Jade", "description": "daikon steamed to a luscious \
-         texture", "price": "$2.50", "course": "vegetable",
-         "image": "http://i.imgur.com/ruIj52U.jpg",
-         "restaurant": myFirstRestaurant},
-        {"name":"fragrant snow", "description": "sweet rice flour balls \
-         encasing honey-infused sweet olive blossoms and coconut oil",
-         "price":"$4.00", "course": "dessert",
-         "image": "http://i.imgur.com/x4MReA4.jpg", "restaurant":
-         myFirstRestaurant},
-        {"name":"Four-layered dip", "description": "organic black beans,\
-         avacado, tomato, cheese, dressed in lemon juice, served with \
-         tortilla chips", "price":"$4.00", "course":"One Complete Meal",
-         "image": "http://i.imgur.com/DD7vpz3.jpg",
-         "restaurant": myThirdRestaurant},
-        {"name":"chicken noodle soup", "description":"what else can you say? \
-         made with carrots, celery, onion,garlic, tomato, zucchini, and \
-         ginger root", "price": "$5.00", "course": "One Complete Meal",
-         "image": "http://i.imgur.com/jTeOF8R.jpg",
-         "restaurant":myFourthRestaurant},
-        {"name":'seaweed', "description":"Wakame salad in green onion, hemp \
-        heart, sesame oil, and salt,served with two pieces of baked tofu,\
-         and a baked sweet potato", "price": "$5.00", "course": "One Complete\
-          Meal", "image": "http://i.imgur.com/YL4RcmB.jpg",
-          "restaurant": mySecondRestaurant},
-        {"name":"ocean", "description":"soup made of tilapia,  celery, cilantro,\
-        green onion,garlic, tomato, zucchini, and ginger root","price":
-        "$5.00", "course":"One Complete Meal",
-        "image": "http://i.imgur.com/Zdld97L.jpg",
-        "restaurant": myFourthRestaurant},
-        {"name":"baked sweet potato", "description":"sweet potato baked at \
-        350 for 45 minutes, with skin", "price":"$3.00", "course":
-        "vegetable", "image": "http://i.imgur.com/3xnP7rV.jpg",
-        "restaurant": mySecondRestaurant},
-        {"name":"garlic chive", "description":"garlic chive chopped and stir-fried \
-        with tofu, a traditional dish for problem of constipation", "price":"$3.00",
-        "course": "vegetable", "image": "http://i.imgur.com/3L3kK3q.jpg",
-        "restaurant": mySecondRestaurant}
-    ]
-}
+# data2 = {
+#     "menus": [
+#         {"name": "Jade", "description": "daikon steamed to a luscious \
+#          texture", "price": "$2.50", "course": "vegetable",
+#          "image": "http://i.imgur.com/ruIj52U.jpg",
+#          "restaurant": myFirstRestaurant},
+#         {"name":"fragrant snow", "description": "sweet rice flour balls \
+#          encasing honey-infused sweet olive blossoms and coconut oil",
+#          "price":"$4.00", "course": "dessert",
+#          "image": "http://i.imgur.com/x4MReA4.jpg", "restaurant":
+#          myFirstRestaurant},
+#         {"name":"Four-layered dip", "description": "organic black beans,\
+#          avacado, tomato, cheese, dressed in lemon juice, served with \
+#          tortilla chips", "price":"$4.00", "course":"One Complete Meal",
+#          "image": "http://i.imgur.com/DD7vpz3.jpg",
+#          "restaurant": myThirdRestaurant},
+#         {"name":"chicken noodle soup", "description":"what else can you say? \
+#          made with carrots, celery, onion,garlic, tomato, zucchini, and \
+#          ginger root", "price": "$5.00", "course": "One Complete Meal",
+#          "image": "http://i.imgur.com/jTeOF8R.jpg",
+#          "restaurant":myFourthRestaurant},
+#         {"name":'seaweed', "description":"Wakame salad in green onion, hemp \
+#         heart, sesame oil, and salt,served with two pieces of baked tofu,\
+#          and a baked sweet potato", "price": "$5.00", "course": "One Complete\
+#           Meal", "image": "http://i.imgur.com/YL4RcmB.jpg",
+#           "restaurant": mySecondRestaurant},
+#         {"name":"ocean", "description":"soup made of tilapia,  celery, cilantro,\
+#         green onion,garlic, tomato, zucchini, and ginger root","price":
+#         "$5.00", "course":"One Complete Meal",
+#         "image": "http://i.imgur.com/Zdld97L.jpg",
+#         "restaurant": myFourthRestaurant},
+#         {"name":"baked sweet potato", "description":"sweet potato baked at \
+#         350 for 45 minutes, with skin", "price":"$3.00", "course":
+#         "vegetable", "image": "http://i.imgur.com/3xnP7rV.jpg",
+#         "restaurant": mySecondRestaurant},
+#         {"name":"garlic chive", "description":"garlic chive chopped and stir-fried \
+#         with tofu, a traditional dish for problem of constipation", "price":"$3.00",
+#         "course": "vegetable", "image": "http://i.imgur.com/3L3kK3q.jpg",
+#         "restaurant": mySecondRestaurant}
+#     ]
+# }
 
 
-def populateMenus(menus):
+def populateMenus(menus,restaurant):
     """ method to populate a list of menus, skip if already present"""
     try:
         for i in range(len(menus)):
@@ -127,7 +116,7 @@ def populateMenus(menus):
                                 price=menus[i]["price"],
                                 course=menus[i]["course"],
                                 image=menus[i]["image"],
-                                restaurant=menus[i]["restaurant"])
+                                restaurant=restaurant)
                 session.add(menu)
             session.commit()
     except:
@@ -135,18 +124,21 @@ def populateMenus(menus):
 
 
 # populate the menus
-populateMenus(data2['menus'])
+populateMenus([data['menus'][0], data['menus'][1]], myFirstRestaurant)
+populateMenus([data['menus'][4], data['menus'][6], data['menus'][7]], mySecondRestaurant)
+populateMenus(data['menus'][2], myThirdRestaurant)
+populateMenus([data['menus'][3], data['menus'][5]], myFourthRestaurant)
 menu_no = session.query(MenuItem).count()
-# print 'menu number:', menu_no
+print 'menu number:', menu_no
 
 
-data3 = {
-    "conditions": [
-        {"name": "diabetes", "signs_and_symptoms": "thirst, fatigue, frequent \
-        urination, weight loss"},
-        {"name": "gray hair", "signs_and_symptoms": "natural graying of hair"}
-    ]
-}
+# data3 = {
+#     "conditions": [
+#         {"name": "diabetes", "signs_and_symptoms": "thirst, fatigue, frequent \
+#         urination, weight loss"},
+#         {"name": "gray hair", "signs_and_symptoms": "natural graying of hair"}
+#     ]
+# }
 
 
 def populateConditions(conditions):
@@ -197,7 +189,7 @@ def populateConditions(conditions):
 
 
 # populate conditions
-populateConditions(data3["conditions"])
+populateConditions(data["conditions"])
 print "condition counts:", session.query(Condition).count()
 # myFirstCondition = session.query(Condition).filter_by(name="diabetes").first()
 
