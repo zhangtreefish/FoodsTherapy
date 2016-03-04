@@ -5,7 +5,6 @@ import random
 import json
 import httplib2
 import requests
-# import feedparser
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -49,18 +48,6 @@ def create_album(client, album_title):
     'description': 'images of menus {0}'.format(datetime.now())
     }
 
-    # check if titled album already exist
-    # albums = client.get_account_albums('me')
-    # no_album = True
-    # for a in albums:
-    #     print a
-    #     if a.title == album_title:
-    #         album_id = a.id
-    #         no_album = False
-    #         break
-
-    # print "album1", album #works
-    # if no_album:
     album_id = client.create_album(album_config)
     print "album_id:", album_id
     updated_albums = client.get_account_albums('me')
@@ -813,6 +800,16 @@ def newConditionMenu(condition_id):
 if __name__ == '__main__':
     # TODO: set to False before deployment: enable debug so the server
     # reloads itself on code changes
+    # set up logging
+    logger = logging.getLogger()
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+            '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    logger.debug('often makes a very good meal of %s', 'visiting tourists')
+
     app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
