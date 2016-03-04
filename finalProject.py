@@ -73,7 +73,7 @@ def create_album(client, album_title):
             return album_id
     return album
 
-album_id = create_album(client, 'healthy menus album')
+album_id = create_album(client, album_title)
 
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
