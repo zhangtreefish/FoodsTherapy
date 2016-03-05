@@ -62,7 +62,13 @@
             "description":"garlic chive chopped and stir-fried with tofu, a traditional dish for problem of constipation",
             "price":"$3.00",
             "course": "vegetable",
-            "image": "http://i.imgur.com/3L3kK3q.jpg"}
+            "image": "http://i.imgur.com/3L3kK3q.jpg"},
+
+            {"name":"tres amigos",
+            "description":"nopalito, potato, and sausage cubes sautéed with turmeric power and garlic in extra virgin olive oil, served with half of an egg.",
+            "price":"$5.00",
+            "course": "vegetable",
+            "image": "http://i.imgur.com/5fxrwhU.jpg"}
     ],
 
     "conditions": [

@@ -12,17 +12,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 data = json.loads(open('app_data.json', 'r').read())
-print "resta!!!!!", data["restaurants"][0]
-
-# data1 = {
-#     "restaurants": [
-#         {"name":"Steam", "description":"all things steamed"},
-#         {"name":'3Fs', "description":'that features fiber,fitness, and fluid'},
-#         {"name":'Eden', "description":'out of your dream garden'},
-#         {"name":'School Lunch',
-#         "description":"balanced lunch for the precious bodies and minds"}
-#     ]
-# }
+# print "resta!!!!!", data["restaurants"][0]
 
 
 def populate(restaurant):
@@ -55,55 +45,13 @@ def populateRestaurants(restaurants):
 # populate the restaurants
 populateRestaurants(data["restaurants"])
 restaurant_num = session.query(Restaurant).count()
-print 'number of restaurants populated:', restaurant_num
+# print 'number of restaurants populated:', restaurant_num
 
 myFirstRestaurant = session.query(Restaurant).filter_by(name="Steam").first()
 mySecondRestaurant = session.query(Restaurant).filter_by(name="3Fs").first()
 myThirdRestaurant = session.query(Restaurant).filter_by(name="Eden").first()
 myFourthRestaurant = session.query(Restaurant).filter_by(name="School Lunch").first()
-print "second????????????????:", mySecondRestaurant
-
-# data2 = {
-#     "menus": [
-#         {"name": "Jade", "description": "daikon steamed to a luscious \
-#          texture", "price": "$2.50", "course": "vegetable",
-#          "image": "http://i.imgur.com/ruIj52U.jpg",
-#          "restaurant": myFirstRestaurant},
-#         {"name":"fragrant snow", "description": "sweet rice flour balls \
-#          encasing honey-infused sweet olive blossoms and coconut oil",
-#          "price":"$4.00", "course": "dessert",
-#          "image": "http://i.imgur.com/x4MReA4.jpg", "restaurant":
-#          myFirstRestaurant},
-#         {"name":"Four-layered dip", "description": "organic black beans,\
-#          avacado, tomato, cheese, dressed in lemon juice, served with \
-#          tortilla chips", "price":"$4.00", "course":"One Complete Meal",
-#          "image": "http://i.imgur.com/DD7vpz3.jpg",
-#          "restaurant": myThirdRestaurant},
-#         {"name":"chicken noodle soup", "description":"what else can you say? \
-#          made with carrots, celery, onion,garlic, tomato, zucchini, and \
-#          ginger root", "price": "$5.00", "course": "One Complete Meal",
-#          "image": "http://i.imgur.com/jTeOF8R.jpg",
-#          "restaurant":myFourthRestaurant},
-#         {"name":'seaweed', "description":"Wakame salad in green onion, hemp \
-#         heart, sesame oil, and salt,served with two pieces of baked tofu,\
-#          and a baked sweet potato", "price": "$5.00", "course": "One Complete\
-#           Meal", "image": "http://i.imgur.com/YL4RcmB.jpg",
-#           "restaurant": mySecondRestaurant},
-#         {"name":"ocean", "description":"soup made of tilapia,  celery, cilantro,\
-#         green onion,garlic, tomato, zucchini, and ginger root","price":
-#         "$5.00", "course":"One Complete Meal",
-#         "image": "http://i.imgur.com/Zdld97L.jpg",
-#         "restaurant": myFourthRestaurant},
-#         {"name":"baked sweet potato", "description":"sweet potato baked at \
-#         350 for 45 minutes, with skin", "price":"$3.00", "course":
-#         "vegetable", "image": "http://i.imgur.com/3xnP7rV.jpg",
-#         "restaurant": mySecondRestaurant},
-#         {"name":"garlic chive", "description":"garlic chive chopped and stir-fried \
-#         with tofu, a traditional dish for problem of constipation", "price":"$3.00",
-#         "course": "vegetable", "image": "http://i.imgur.com/3L3kK3q.jpg",
-#         "restaurant": mySecondRestaurant}
-#     ]
-# }
+# print "second?:", mySecondRestaurant
 
 
 def populateMenus(menus,restaurant):
@@ -127,18 +75,9 @@ def populateMenus(menus,restaurant):
 populateMenus([data['menus'][0], data['menus'][1]], myFirstRestaurant)
 populateMenus([data['menus'][4], data['menus'][6], data['menus'][7]], mySecondRestaurant)
 populateMenus(data['menus'][2], myThirdRestaurant)
-populateMenus([data['menus'][3], data['menus'][5]], myFourthRestaurant)
+populateMenus([data['menus'][3], data['menus'][5], data['menus'][8]], myFourthRestaurant)
 menu_no = session.query(MenuItem).count()
 print 'menu number:', menu_no
-
-
-# data3 = {
-#     "conditions": [
-#         {"name": "diabetes", "signs_and_symptoms": "thirst, fatigue, frequent \
-#         urination, weight loss"},
-#         {"name": "gray hair", "signs_and_symptoms": "natural graying of hair"}
-#     ]
-# }
 
 
 def populateConditions(conditions):
@@ -154,44 +93,12 @@ def populateConditions(conditions):
     except:
         return "Error: no condition is created."
 
-# def addMenuImage(menu_name, image_id):
-#     """
-#     assign a menu image from app author's imgur album to the image attribute
-#     of a menu item
-#     """
-#     try:
-#         menu = session.query(MenuItem).filter_by(name=menu_name).first()
-#         print "menu:", menu.name
-
-#         # access image in the album
-#         images = client.get_album_images(album_id)
-#         img_link = None
-#         for i in images:
-#             if i.id==image_id:
-#                 img_link = i.link
-
-#         menu.image = img_link
-#         print "menu image link:", menu.image
-#         session.add(menu)
-#         session.commit()
-#     except:
-#         return "Error: no image is added."
-
-
-# addMenuImage("Jade","ruIj52U") # ruIj52U
-# addMenuImage("garlic chive", "3L3kK3q") # 3L3kK3q
-# addMenuImage("seaweed", "YL4RcmB") # YL4RcmB
-# addMenuImage("chicken noodle soup", "jTeOF8R") # jTeOF8R
-# addMenuImage("fragrant snow", "x4MReA4") # x4MReA4
-# addMenuImage("Four-layered dip", "DD7vpz3") # DD7vpz3 ; green tea A4dfMST
-# addMenuImage("baked sweet potato", "3xnP7rV") # 3xnP7rV
-# addMenuImage("ocean", "Zdld97L") # Zdld97L
-
 
 # populate conditions
 populateConditions(data["conditions"])
 print "condition counts:", session.query(Condition).count()
 # myFirstCondition = session.query(Condition).filter_by(name="diabetes").first()
+
 
 # create and link a special menu to a condition w/o committing menu first
 if session.query(Condition).filter_by(name="constipation").first() is None:
@@ -211,9 +118,6 @@ if session.query(Condition).filter_by(name="constipation").first() is None:
     session.add(constipation)
     session.commit()
 
-# verify the presence of kabocha menu
-# kabocha_menu = session.query(MenuItem).filter(MenuItem.name.like('%kabocha%')).first()
-# print "kabocha?", kabocha_menu
 
 # for album in client.get_account_albums('me'):
 # album_title = album.title if album.title else 'Untitled'
