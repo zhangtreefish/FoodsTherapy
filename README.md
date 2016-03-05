@@ -13,10 +13,10 @@ twice to reach the root (/), then cd vagrant/FoodsTherapy, pwd to verify /vagran
 6. Further follow the direction of the vagrant VM and open the browser at address: localhost:5000
 
 Features of My Application
-
-1. A logged-in user can create, edit, and delete restaurants, menus offered by his or her own restaurant, and a list of health conditions that are associated with recommended menus.
-2. A non-registered user can look through all tabs (the restaurants,menu and conditions tabs) without logging in. The user can find menus offered by a partiuclar restaurant, menus recommended for certain health conditions, and a list of all the menus created by all users.
-3. All users can also visit the restaurant serving a menu recommended for certain condition.
+1. A user will authenticate the app usage by fetching a pin from the imgur site after running finalProject.py. The user will end up with an album titled 'therapeutic menus' at the site.
+2. A logged-in user can create, edit, and delete restaurants, menus offered by his or her own restaurant, and a list of health conditions that are associated with recommended menus.
+3. A non-registered user can look through all tabs (the restaurants,menu and conditions tabs) without logging in. The user can find menus offered by a partiuclar restaurant, menus recommended for certain health conditions, and a list of all the menus created by all users.
+4. All users can also visit the restaurant serving a menu recommended for certain condition.
 
 Endpoints of My Application, APPLICATION_NAME = "Therapeutic Foods"
 

@@ -137,16 +137,6 @@ def login_and_condition_required(f):
         return f(condition_id, *args, **kwargs)
     return decorated_function
 
-# def create_menu_album(imgur_client, album_id):
-#     album_config = {
-#         'ids': album_id,
-#         'title': 'therapeutic menu album',
-#         'description': 'images of menus for Therapeutic Foods app,\
-#          created on date {0}'.format(datetime.now())
-#     }
-#     imgur_client.create_album(album_config)
-#     flash ('Album  created')
-
 
 def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     '''
@@ -189,7 +179,6 @@ def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     menu.image = image_link
     session.add(menu)
     session.commit()
-    # return image_link
 
 
 @app.errorhandler(404)
@@ -315,12 +304,6 @@ def gdisconnect():
     if result[0]['status'] == 200:
         del login_session['credentials']
         del login_session['gplus_id']
-        # the following refactored into disconnect()
-        # del login_session['username']
-        # del login_session['email']
-        # del login_session['picture']
-        # del login_session['provider']
-        # del login_session['user_id']
         return jsonify(message='User successfully disconnected.'), 200
     else:
         return jsonify(message='Failed to revoke token for given user.'), 400
@@ -346,13 +329,6 @@ def fbconnect():
     url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-
-    # # try imgur
-    # h = httplib2.Http()
-    # imgru_url = 'https://api.imgur.com/3/album/0/images'
-    # img_result = h.request(url, 'GET')[1]
-    # print 'IMAGE:', img_result
-
 
     token = result.split("&")[0]
     info_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
@@ -396,11 +372,6 @@ def fbdisconnect():
     if result['status'] == 200:
         # Reset the user's session
         del login_session['facebook_id']
-        # the following refactored into disconnect()
-        # del login_session['user_id']
-        # del login_session['username']
-        # del login_session['email']
-        # del login_session['picture']
         return jsonify(message='User successfully disconnected from FB.'), 200
     else:
         return jsonify(message='Failed to revoke token for given user.'), 400
@@ -412,11 +383,8 @@ def disconnect():
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
-            # del login_session['gplus_id']
-            # del login_session['credentials']
         if login_session['provider'] == 'facebook':
             fbdisconnect()
-            # del login_session['facebook_id']
         del login_session['username']
         del login_session['email']
         del login_session['picture']
@@ -434,13 +402,6 @@ def restaurantsJSON():
     """list of restaurants in JSON format"""
     restaurants = session.query(Restaurant).all()
     return jsonify(restaurant=[i.serialize for i in restaurants])
-
-
-# @app.route('/restaurants/RSS/')
-# def restaurantsRSS():
-#     restaurants = session.query(Restaurant).all()
-#     d = feedparser.parse(restaurants)
-#     print d.feed.title
 
 
 @app.route('/restaurants/xml/')
@@ -603,11 +564,6 @@ def newMenu(restaurant_id):
         myNewMenu.conditions.append(myNewCondition)
         session.add(myNewMenu)
         session.commit()
-        # global album_id
-        # album_id = None
-        # client = authenticate()
-        # if album_id is None:
-        # album_id = create_album(client, 'March-3 menu album')
         upload_and_populate_image(
             myNewMenu, client, album_id, request.form['newName'],
             request.form['newImage'])
@@ -632,10 +588,6 @@ def editMenu(restaurant_id, menu_id):
         laMenu.course = request.form['newCourse']
         laMenu.description = request.form['newDescription']
         laMenu.price = request.form['newPrice']
-        # myNewCondition = Condition(name=request.form['newConditions'])
-        # session.add(myNewCondition)
-        # laMenu.conditions.append(myNewCondition)
-        # client = authenticate()
         upload_and_populate_image(
             laMenu, client, album_id, request.form['newName'],
             request.form['newImage'])
@@ -685,8 +637,6 @@ def showConditions():
 
     except IOError as err:
         return "No conditions, error:"
-    # finally:
-    #     flash("This page shows all conditions...", "message")
 
 
 @app.route('/conditions/new/', methods=['POST', 'GET'])
@@ -712,7 +662,7 @@ def newCondition():
 def conditionEdit(condition_id):
     """lets a user edit own health condition"""
     try:
-        # Why first_or_404 does not work
+        # TODO:Why first_or_404 does not work
         laCond = session.query(Condition).filter_by(id=condition_id).first()
         if laCond:
             if request.method == 'POST':
