@@ -564,6 +564,7 @@ def newMenu(restaurant_id):
         myNewMenu.conditions.append(myNewCondition)
         session.add(myNewMenu)
         session.commit()
+        logging.debug(request.form['newImage'])
         upload_and_populate_image(
             myNewMenu, client, album_id, request.form['newName'],
             request.form['newImage'])
@@ -769,5 +770,5 @@ if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     # TODO: set to False before deployment: enable debug so the server
     # reloads itself on code changes
-    app.debug = True
+    app.debug = False
     app.run(host='0.0.0.0', port=5000)

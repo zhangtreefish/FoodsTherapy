@@ -9,7 +9,7 @@ How to Run the Application
 4. Inside vagrant: from th ecurrent (/home/vagrant) directory cd ..
 twice to reach the root (/), then cd vagrant/FoodsTherapy, pwd to verify /vagrant/FoodsTherapy.
 5. Inside vagrant at /vagrant/FoodsTherapy: Run in order 'python database_setup.py',
-'python manyRestaurants.py', and 'python finalProject.py'; follow the vm prompt to fetch the pin from imgur.com and enter it at the vm prompt when running finalProject.py. An album titled 'therapeutic menus' is created by user at imgur when uploading images for menu
+'python manyRestaurants.py', and 'python finalProject.py'; follow the vm prompt to fetch the pin from imgur.com and enter it at the vm prompt when running finalProject.py. Upload an image when creating menuItem from the project directory, and an album titled 'therapeutic menus' containing the image will be created at imgur.
 6. Further follow the direction of the vagrant VM and open the browser at address: localhost:5000
 
 Features of My Application
