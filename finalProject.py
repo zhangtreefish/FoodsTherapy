@@ -321,7 +321,7 @@ def fbconnect():
     # Obtain the one-time authorization code from authorization server
     access_token = request.data
     # print 'fb access_token:',access_token
-    app_info = json.loads(open('fb_client_secrets.json', 'r').read())
+    app_info = json.loads(open('t_fb_client_secrets.json', 'r').read())
     # print app_info.to_json() # why print not working?
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
@@ -770,5 +770,5 @@ if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     # TODO: set to False before deployment: enable debug so the server
     # reloads itself on code changes
-    app.debug = False
+    app.debug = True
     app.run(host='0.0.0.0', port=5000)

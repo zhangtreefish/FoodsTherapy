@@ -87,7 +87,7 @@ def populateConditions(conditions):
             if session.query(Condition).filter_by(name=conditions[i]["name"]).first() is None:
                 condition = Condition(name=conditions[i]["name"],
                                       signs_and_symptoms=conditions[i]["signs_and_symptoms"],
-                                      user_id="")
+                                      user_id=0)
                 session.add(condition)
             session.commit()
     except:
