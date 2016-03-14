@@ -7,6 +7,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
+import psycopg2
 
 Base = declarative_base()
 
@@ -111,5 +112,5 @@ class MenuItem(Base):
 # create an instance of Engine to be connected to SQLite database
 # issue CREATE statements for all tables using MetaData object created during
 # declarative_base()
-engine = create_engine('sqlite:///restaurantmenuconditionuser.db', echo=True)
+engine = create_engine('postgresql://grader:ji1qi4@localhost/food')
 Base.metadata.create_all(engine)

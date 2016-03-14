@@ -771,4 +771,4 @@ if __name__ == '__main__':
     # TODO: set to False before deployment: enable debug so the server
     # reloads itself on code changes
     app.debug = False
-    app.run(host='0.0.0.0', port=5000)
+    # app.run(host='52.24.239.208', port=80)
