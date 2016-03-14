@@ -318,7 +318,7 @@ def fbconnect():
     # Obtain the one-time authorization code from authorization server
     access_token = request.data
     # print 'fb access_token:',access_token
-    app_info = json.loads(open('fb_client_secrets.json', 'r').read())
+    app_info = json.loads(open('t_fb_client_secrets.json', 'r').read())
     # print app_info.to_json() # why print not working?
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
