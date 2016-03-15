@@ -29,7 +29,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 app = Flask(__name__)
-g_file = '/var/www/FoodTherapy/FoodsTherapy/client_secret.json'
+g_file = '/var/www/FoodTherapy/FoodsTherapy/p_client_secret.json'
 fb_file = '/var/www/FoodTherapy/FoodsTherapy/p_fb_client_secrets.json'
 G_CLIENT_ID = json.loads(
     open(g_file, 'r').read())['web']['client_id']
