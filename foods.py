@@ -29,13 +29,16 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 app = Flask(__name__)
-
+g_file = '/var/www/FoodTherapy/FoodsTherapy/client_secret.json'
+fb_file = '/var/www/FoodTherapy/FoodsTherapy/fb_client_secrets.json'
 G_CLIENT_ID = json.loads(
-    open('client_secret.json', 'r').read())['web']['client_id']
+    open(g_file, 'r').read())['web']['client_id']
 
 APPLICATION_NAME = "Therapeutic Foods"
 
 album_title = 'therapeutic menus' # can not specify album_id
+# client = authenticate()
+
 
 def create_album(client, album_title):
     """create an album for registered user in imgur.com"""
@@ -56,6 +59,7 @@ def create_album(client, album_title):
             return album_id
     return album
 
+# album_id = create_album(client, album_title)
 
 def createUser(login_session):
     """generator of user if the user is in session(i.e. logged in)"""
@@ -206,7 +210,7 @@ def gconnect():
     try:
         # Upgrade the authorization code into a credentials object
         # flow_from_cl:creates a Flow object from the json file
-        oauth_flow = flow_from_clientsecrets('client_secret.json', scope='',
+        oauth_flow = flow_from_clientsecrets(g_file, scope='',
                                              redirect_uri='postmessage')
         # exchanges an authorization code for a Credentials object
         credentials = oauth_flow.step2_exchange(code)
@@ -318,11 +322,11 @@ def fbconnect():
     # Obtain the one-time authorization code from authorization server
     access_token = request.data
     # print 'fb access_token:',access_token
-    app_info = json.loads(open('t_fb_client_secrets.json', 'r').read())
+    app_info = json.loads(open(fb_file, 'r').read())
     # print app_info.to_json() # why print not working?
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
-    # token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
+    token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -563,7 +567,7 @@ def newMenu(restaurant_id):
         session.commit()
         logging.debug(request.form['newImage'])
         upload_and_populate_image(
-            myNewMenu, imgur_client, album_id, request.form['newName'],
+            myNewMenu, client, album_id, request.form['newName'],
             request.form['newImage'])
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
         flash('New condition ' + myNewCondition.name + ' has been created!',
@@ -587,7 +591,7 @@ def editMenu(restaurant_id, menu_id):
         laMenu.description = request.form['newDescription']
         laMenu.price = request.form['newPrice']
         upload_and_populate_image(
-            laMenu, imgur_client, album_id, request.form['newName'],
+            laMenu, client, album_id, request.form['newName'],
             request.form['newImage'])
         session.add(laMenu)
         session.commit()
@@ -736,7 +740,8 @@ def newConditionMenu(condition_id):
         session.add(newConditionMenu)
         session.commit()
         album_id = create_album_simple('new menu album')
-        upload_and_populate_image(newConditionMenu, imgur_client, album_id,
+        # client = authenticate()
+        upload_and_populate_image(newConditionMenu, client, album_id,
             request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
               'message')
@@ -760,11 +765,12 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     logger.debug('often makes a very good meal of %s', 'visiting tourists')
     # set up album
-    imgur_client = authenticate()
-    album_id = create_album(imgur_client, album_title)
+    client = authenticate()
+    album_id = create_album(client, album_title)
 
     app.secret_key = 'super_secret_key'
     # TODO: set to False before deployment: enable debug so the server
     # reloads itself on code changes
-    app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+    app.debug = False
+    app.run()
+

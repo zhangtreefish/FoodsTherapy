@@ -86,17 +86,17 @@ def populateConditions(conditions):
         for i in range(len(conditions)):
             if session.query(Condition).filter_by(name=conditions[i]["name"]).first() is None:
                 condition = Condition(name=conditions[i]["name"],
-                                      signs_and_symptoms=conditions[i]["signs_and_symptoms"]
-                                     )
+                                      signs_and_symptoms=conditions[i]["signs_and_symptoms"])
                 session.add(condition)
-            session.commit()
+	    session.commit()
     except:
         return "Error: no condition is created."
 
 
 # populate conditions
 populateConditions(data["conditions"])
-print "condition counts:", session.query(Condition).count()
+con_count = session.query(Condition).count()
+print "condition counts:", con_count
 # myFirstCondition = session.query(Condition).filter_by(name="diabetes").first()
 
 
