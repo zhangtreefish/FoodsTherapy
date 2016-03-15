@@ -30,11 +30,11 @@ session = DBSession()
 
 app = Flask(__name__)
 g_file = '/var/www/FoodTherapy/FoodsTherapy/client_secret.json'
-fb_file = '/var/www/FoodTherapy/FoodsTherapy/fb_client_secrets.json'
+fb_file = '/var/www/FoodTherapy/FoodsTherapy/p_fb_client_secrets.json'
 G_CLIENT_ID = json.loads(
     open(g_file, 'r').read())['web']['client_id']
 
-APPLICATION_NAME = "Therapeutic Foods"
+APPLICATION_NAME = "Therapeutic Foods Planner"
 
 album_title = 'therapeutic menus' # can not specify album_id
 # client = authenticate()
