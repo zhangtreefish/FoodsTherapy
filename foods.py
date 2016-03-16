@@ -708,7 +708,7 @@ def conditionDelete(condition_id):
 def conditionMenus(condition_id):
     """lists all menus suitable for a condition"""
     try:
-        laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        laCondition = session.query(Condition).filter_by(id=condition_id).first()
         menus = laCondition.suggested_menus
         logged_id = login_session.get('user_id')
         owner_id = laCondition.user_id
