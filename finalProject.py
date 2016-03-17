@@ -686,15 +686,16 @@ def conditionDelete(condition_id):
     """lets a user delete own health condition"""
     try:
         laCondition = session.query(Condition).filter_by(id=condition_id).one()
-        if request.method == 'POST':
-            session.delete(laCondition)
-            flash('the condition ' + laCondition.name +
-                  ' has been deleted!', 'message')
-            return redirect(url_for('showConditions'))
-        else:
-            return render_template(
-                'deleteCondition.html',
-                condition_id=condition_id, condition=laCondition)
+        if laCondition:
+            if request.method == 'POST':
+                session.delete(laCondition)
+                flash('the condition ' + laCondition.name +
+                      ' has been deleted!', 'message')
+                return redirect(url_for('showConditions'))
+            else:
+                return render_template(
+                    'deleteCondition.html',
+                    condition_id=condition_id, condition=laCondition)
     except IOError as err:
         return "No condition deleted.", 404
 
@@ -704,18 +705,19 @@ def conditionDelete(condition_id):
 def conditionMenus(condition_id):
     """lists all menus suitable for a condition"""
     try:
-        laCondition = session.query(Condition).filter_by(id=condition_id).one()
-        menus = laCondition.suggested_menus
-        logged_id = login_session.get('user_id')
-        owner_id = laCondition.user_id
-        if logged_id is None or owner_id != logged_id:
-            return render_template(
-                'conditionMenusPublic.html', condition_id=condition_id,
-                condition=laCondition, menus=menus)
-        else:
-            return render_template(
-                'conditionMenus.html', condition_id=condition_id,
-                condition=laCondition, menus=menus)
+        laCondition = session.query(Condition).filter_by(id=condition_id).first()
+        if laCondition:
+            menus = laCondition.suggested_menus
+            logged_id = login_session.get('user_id')
+            owner_id = laCondition.user_id
+            if logged_id is None or owner_id != logged_id:
+                return render_template(
+                    'conditionMenusPublic.html', condition_id=condition_id,
+                    condition=laCondition, menus=menus)
+            else:
+                return render_template(
+                    'conditionMenus.html', condition_id=condition_id,
+                    condition=laCondition, menus=menus)
     except IOError as err:
         return "No menus available yet.", 404
 
@@ -725,28 +727,29 @@ def conditionMenus(condition_id):
 def newConditionMenu(condition_id):
     """lets a user suggest a menu suitable for a condition"""
     condition = session.query(Condition).filter_by(id=condition_id).one()
-    if request.method == 'POST':
-        newConditionMenu = MenuItem(
-            name=request.form['newName'],
-            course=request.form['newCourse'],
-            description=request.form['newDescription'],
-            price=request.form['newPrice'],
-            restaurant_id=request.form['newRestaurantId'])
-        newConditionMenu.conditions.append(condition)
-        session.add(newConditionMenu)
-        session.commit()
-        album_id = create_album_simple('new menu album')
-        upload_and_populate_image(newConditionMenu, imgur_client, album_id,
-            request.form['newName'], request.form['newImage'])
-        flash('New menu ' + newConditionMenu.name+' has been created!',
-              'message')
-        return redirect(url_for('conditionMenus', condition_id=condition_id))
-    else:
-        restaurants = session.query(Restaurant).all()
-        return render_template(
-            'newConditionMenu.html',
-            condition_id=condition_id, condition=condition,
-            restaurants=restaurants)
+    if condition:
+        if request.method == 'POST':
+            newConditionMenu = MenuItem(
+                name=request.form['newName'],
+                course=request.form['newCourse'],
+                description=request.form['newDescription'],
+                price=request.form['newPrice'],
+                restaurant_id=request.form['newRestaurantId'])
+            newConditionMenu.conditions.append(condition)
+            session.add(newConditionMenu)
+            session.commit()
+            album_id = create_album_simple('new menu album')
+            upload_and_populate_image(newConditionMenu, imgur_client, album_id,
+                request.form['newName'], request.form['newImage'])
+            flash('New menu ' + newConditionMenu.name+' has been created!',
+                  'message')
+            return redirect(url_for('conditionMenus', condition_id=condition_id))
+        else:
+            restaurants = session.query(Restaurant).all()
+            return render_template(
+                'newConditionMenu.html',
+                condition_id=condition_id, condition=condition,
+                restaurants=restaurants)
 
 
 if __name__ == '__main__':
