@@ -7,12 +7,14 @@ import httplib2
 import requests
 import logging
 from sqlalchemy import create_engine
+
+
 from sqlalchemy.orm import sessionmaker
 from flask import session as login_session
 from oauth2client import client, crypt
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
-from database_setup import Restaurant, MenuItem, Condition, Base, User, engine
+from database_setup import Restaurant, MenuItem, Condition, Base, User
 from functools import wraps
 from xml.etree.ElementTree import Element, SubElement
 import xml.etree.ElementTree as ET
@@ -21,12 +23,16 @@ from os import linesep
 from auth import authenticate
 from datetime import datetime
 
+from manyRestaurants import DBSession
+
 
 # if just do 'from manyRestaurants import Restaurant, session' and without the
 # next 2 lines,get error 'SQLite objects created in a thread can only be used
 # in that same thread'
-DBSession = sessionmaker(bind=engine)
+# DBSession = sessionmaker(bind=engine)
 session = DBSession()
+# engine = get_engine(database="sqlite:///restaurantmenuconditionuser.db")
+# session = sessionmaker(bind=engine)()
 
 app = Flask(__name__)
 
