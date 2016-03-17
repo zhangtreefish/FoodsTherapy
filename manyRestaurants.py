@@ -35,7 +35,8 @@ def populateRestaurants(restaurants):
             if rest is None:
                 restaurant = Restaurant(
                     name=restaurants[i]["name"],
-                    description=restaurants[i]["description"])
+                    description=restaurants[i]["description"],
+                    user_id=0)
                 session.add(restaurant)
             session.commit()
     except:
@@ -86,7 +87,8 @@ def populateConditions(conditions):
         for i in range(len(conditions)):
             if session.query(Condition).filter_by(name=conditions[i]["name"]).first() is None:
                 condition = Condition(name=conditions[i]["name"],
-                                      signs_and_symptoms=conditions[i]["signs_and_symptoms"])
+                                      signs_and_symptoms=conditions[i]["signs_and_symptoms"],
+                                      user_id=0)
                 session.add(condition)
             session.commit()
     except:
@@ -126,3 +128,4 @@ if session.query(Condition).filter_by(name="constipation").first() is None:
 # for image in client.get_album_images(album.id):
 #     image_title = image.title if image.title else 'Untitled'
 #     print('\t{0}: {1}'.format(image_title, image.link))
+session.close()
