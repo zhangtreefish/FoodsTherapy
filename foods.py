@@ -739,8 +739,6 @@ def newConditionMenu(condition_id):
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()
-        album_id = create_album_simple('new menu album')
-        # client = authenticate()
         upload_and_populate_image(newConditionMenu, client, album_id,
             request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
