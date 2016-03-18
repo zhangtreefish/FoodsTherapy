@@ -478,7 +478,7 @@ def restaurantEdit(restaurant_id):
 
 @app.route('/restaurants/<int:restaurant_id>/delete/', methods=['POST', 'GET'])
 @login_and_restauranter_required
-@app.errorhandler(404)
+# @app.errorhandler(404)
 def restaurantDelete(restaurant_id):
     """let a logged-in user delete his or her own restaurant"""
     laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -660,7 +660,7 @@ def newCondition():
 
 @app.route('/conditions/<int:condition_id>/edit', methods=['POST', 'GET'])
 @login_and_condition_required
-@app.errorhandler(404)
+# @app.errorhandler(404)
 def conditionEdit(condition_id):
     """lets a user edit own health condition"""
     try:
@@ -685,7 +685,7 @@ def conditionEdit(condition_id):
 
 @app.route('/conditions/<int:condition_id>/delete', methods=['POST', 'GET'])
 @login_and_condition_required
-@app.errorhandler(404)
+# @app.errorhandler(404)
 def conditionDelete(condition_id):
     """lets a user delete own health condition"""
     try:
@@ -704,7 +704,7 @@ def conditionDelete(condition_id):
 
 
 @app.route('/conditions/<int:condition_id>/menu/')
-@app.errorhandler(404)
+# @app.errorhandler(404)
 def conditionMenus(condition_id):
     """lists all menus suitable for a condition"""
     try:
@@ -739,8 +739,6 @@ def newConditionMenu(condition_id):
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()
-        album_id = create_album_simple('new menu album')
-        # client = authenticate()
         upload_and_populate_image(newConditionMenu, client, album_id,
             request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
