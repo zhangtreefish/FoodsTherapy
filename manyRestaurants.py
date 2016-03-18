@@ -90,7 +90,7 @@ def populateConditions(conditions):
                                       signs_and_symptoms=conditions[i]["signs_and_symptoms"],
                                       user_id=0)
                 session.add(condition)
-	    session.commit()
+        session.commit()
     except:
         return "Error: no condition is created."
 
