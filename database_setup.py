@@ -112,5 +112,5 @@ class MenuItem(Base):
 # create an instance of Engine to be connected to SQLite database
 # issue CREATE statements for all tables using MetaData object created during
 # declarative_base()
-engine = create_engine('postgresql://grader:ji1qi4@localhost/food_three')
+engine = create_engine('postgresql://grader:ji1qi4@localhost/food')
 Base.metadata.create_all(engine)
