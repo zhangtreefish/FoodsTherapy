@@ -12,7 +12,7 @@ from helpers import get_input, get_config
 def authenticate():
 	# Get client ID and secret from auth.ini
 	config = get_config()
-	config.read('auth.ini')
+	config.read('/var/www/FoodTherapy/FoodsTherapy/auth.ini')
 	client_id = config.get('credentials', 'client_id')
 	client_secret = config.get('credentials', 'client_secret')
 	# print ('id:',client_id)
