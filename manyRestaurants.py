@@ -35,8 +35,7 @@ def populateRestaurants(restaurants):
             if rest is None:
                 restaurant = Restaurant(
                     name=restaurants[i]["name"],
-                    description=restaurants[i]["description"],
-                    user_id=0)
+                    description=restaurants[i]["description"])
                 session.add(restaurant)
             session.commit()
     except:
@@ -87,8 +86,7 @@ def populateConditions(conditions):
         for i in range(len(conditions)):
             if session.query(Condition).filter_by(name=conditions[i]["name"]).first() is None:
                 condition = Condition(name=conditions[i]["name"],
-                                      signs_and_symptoms=conditions[i]["signs_and_symptoms"],
-                                      user_id=0)
+                                      signs_and_symptoms=conditions[i]["signs_and_symptoms"])
                 session.add(condition)
             session.commit()
     except:
