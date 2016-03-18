@@ -29,12 +29,12 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 app = Flask(__name__)
-g_file = '/var/www/FoodTherapy/FoodsTherapy/client_secret.json'
-fb_file = '/var/www/FoodTherapy/FoodsTherapy/fb_client_secrets.json'
+g_file = '/var/www/FoodTherapy/FoodsTherapy/p_client_secret.json'
+fb_file = '/var/www/FoodTherapy/FoodsTherapy/p_fb_client_secrets.json'
 G_CLIENT_ID = json.loads(
     open(g_file, 'r').read())['web']['client_id']
 
-APPLICATION_NAME = "Therapeutic Foods"
+APPLICATION_NAME = "Therapeutic Foods Planner"
 
 album_title = 'therapeutic menus' # can not specify album_id
 # client = authenticate()
@@ -221,7 +221,7 @@ def gconnect():
     # A Credentials object holds refresh and access tokens that authorize
     # access to a single user's data. These objects are applied to httplib2
     # .Http objects to authorize access.
-    # print 'credentials:', credentials
+    print 'credentials:', credentials
     access_token = credentials.access_token
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
     h = httplib2.Http()
@@ -708,7 +708,7 @@ def conditionDelete(condition_id):
 def conditionMenus(condition_id):
     """lists all menus suitable for a condition"""
     try:
-        laCondition = session.query(Condition).filter_by(id=condition_id).one()
+        laCondition = session.query(Condition).filter_by(id=condition_id).first()
         menus = laCondition.suggested_menus
         logged_id = login_session.get('user_id')
         owner_id = laCondition.user_id
@@ -773,3 +773,4 @@ if __name__ == '__main__':
     # reloads itself on code changes
     app.debug = False
     app.run()
+
