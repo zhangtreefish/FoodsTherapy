@@ -566,9 +566,12 @@ def newMenu(restaurant_id):
         session.add(myNewMenu)
         session.commit()
         logging.debug(request.form['newImage'])
+        client = authenticate()
+        album_id = create_album(client, album_title)
+        new_img_url = '/var/www/FoodTherapy/FoodsTherapy/'+request.form['newImage']
         upload_and_populate_image(
             myNewMenu, client, album_id, request.form['newName'],
-            request.form['newImage'])
+            new_img_url)
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
         flash('New condition ' + myNewCondition.name + ' has been created!',
               'message')
@@ -763,9 +766,8 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     logger.debug('often makes a very good meal of %s', 'visiting tourists')
     # set up album
-    client = authenticate()
-    album_id = create_album(client, album_title)
-
+    # client = authenticate()
+    # album_id = create_album(client, album_title)
     app.secret_key = 'super_secret_key'
     # TODO: set to False before deployment: enable debug so the server
     # reloads itself on code changes
