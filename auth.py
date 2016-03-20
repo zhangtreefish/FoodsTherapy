@@ -15,7 +15,7 @@ def authenticate():
 	config.read('/var/www/FoodTherapy/FoodsTherapy/auth.ini')
 	client_id = config.get('credentials', 'client_id')
 	client_secret = config.get('credentials', 'client_secret')
-	# print ('id:',client_id)
+	print ('id:',client_id)
 
 	client = ImgurClient(client_id, client_secret)
 
