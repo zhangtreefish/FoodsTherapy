@@ -18,7 +18,7 @@ from xml.etree.ElementTree import Element, SubElement
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 from os import linesep
-from auth import authenticate
+# from auth import authenticate
 from datetime import datetime
 
 
@@ -36,9 +36,9 @@ G_CLIENT_ID = json.loads(
 
 APPLICATION_NAME = "Therapeutic Foods Planner"
 
-album_title = 'therapeutic menus' # can not specify album_id
+# album_title = 'therapeutic menus' # can not specify album_id
 # client = authenticate()
-
+# album_id = 'loHqJ'
 
 def create_album(client, album_title):
     """create an album for registered user in imgur.com"""
@@ -561,12 +561,11 @@ def newMenu(restaurant_id):
             course=request.form['newCourse'],
             description=request.form['newDescription'],
             price=request.form['newPrice'],
-            image='http://i.imgur.com/ruIj52U.jpg',
-	    restaurant_id=restaurant_id)
+            restaurant_id=restaurant_id)
         myNewMenu.conditions.append(myNewCondition)
         session.add(myNewMenu)
         session.commit()
-        logging.debug(request.form['newImage'])
+        # logging.debug(request.form['newImage'])
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
         flash('New condition ' + myNewCondition.name + ' has been created!',
               'message')
@@ -588,9 +587,6 @@ def editMenu(restaurant_id, menu_id):
         laMenu.course = request.form['newCourse']
         laMenu.description = request.form['newDescription']
         laMenu.price = request.form['newPrice']
-        upload_and_populate_image(
-            laMenu, client, album_id, request.form['newName'],
-            request.form['newImage'])
         session.add(laMenu)
         session.commit()
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
@@ -737,8 +733,6 @@ def newConditionMenu(condition_id):
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()
-        upload_and_populate_image(newConditionMenu, client, album_id,
-            request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
               'message')
         return redirect(url_for('conditionMenus', condition_id=condition_id))

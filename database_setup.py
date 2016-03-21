@@ -84,7 +84,6 @@ class MenuItem(Base):
     id = Column(Integer, primary_key=True)
     description = Column(String(250))
     price = Column(String(8))
-    # image = Column(String(250))
     course = Column(String(250))
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'),
                            nullable=False)
@@ -100,9 +99,7 @@ class MenuItem(Base):
                 'description': self.description,
                 'price': self.price,
                 'id': self.id,
-                # 'image': self.image,
-                'restaurant_id': self.restaurant_id,
-                # 'restaurant':self.restaurant:restaurant is not serializable
+                'restaurant_id': self.restaurant_id
                 }
 
 # an alternative way of adding relationship:
