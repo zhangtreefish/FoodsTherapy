@@ -561,7 +561,8 @@ def newMenu(restaurant_id):
             course=request.form['newCourse'],
             description=request.form['newDescription'],
             price=request.form['newPrice'],
-            restaurant_id=restaurant_id)
+            image='http://i.imgur.com/ruIj52U.jpg',
+	    restaurant_id=restaurant_id)
         myNewMenu.conditions.append(myNewCondition)
         session.add(myNewMenu)
         session.commit()
