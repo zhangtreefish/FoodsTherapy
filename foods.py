@@ -761,8 +761,8 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     logger.debug('often makes a very good meal of %s', 'visiting tourists')
     # set up album
-    client = authenticate()
-    album_id = create_album(client, album_title)
+    # client = authenticate()
+    # album_id = create_album(client, album_title)
 
     app.secret_key = 'super_secret_key'
     # TODO: set to False before deployment: enable debug so the server
