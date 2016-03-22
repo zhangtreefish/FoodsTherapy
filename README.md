@@ -6,21 +6,31 @@ How to Run the Application
 1. At a directory, 'git clone {my project git url}',
 2. cd to the project directory, run 'vagrant init ubuntu/trusty32'
 3. At the project directory, run 'vagrant up', then 'vagrant ssh'
-4. Inside vagrant: from th ecurrent (/home/vagrant) directory cd ..
-twice to reach the root (/), then cd vagrant/FoodsTherapy, pwd to verify /vagrant/FoodsTherapy.
-5. Inside vagrant at /vagrant/FoodsTherapy: Run in order 'python database_setup.py',
-'python manyRestaurants.py', and 'python finalProject.py'; follow the vm prompt to fetch the pin from imgur.com and enter it at the vm prompt when running finalProject.py. Upload an image when creating menuItem from the project directory, and an album titled 'therapeutic menus' containing the image will be created at imgur.
-6. Further follow the direction of the vagrant VM and open the browser at address: localhost:5000
+4. Inside vagrant: cd /vagrant/FoodsTherapy; run 'python finalProject.py'; follow the vm
+   prompt to fetch the pin from imgur.com and enter it at the vm prompt; Further follow
+   the direction of the vagrant VM and open the browser at address: localhost:5000.
+5. To start with a clean database, do the following inside vagrant at /vagrant/Foods
+   Therapy:
+  - python database_setup.py
+  - python manyRestaurants.py
+  - python finalProject.py; follow the vm prompt to fetch the pin as in step 4 above.
+6. When creating menuItem, upload the image from the project directory.
 
 Features of My Application
-1. A user will authenticate the app usage by fetching a pin from the imgur site after running finalProject.py. The user will end up with an album titled 'therapeutic menus' at the site.
-2. A logged-in user can create, edit, and delete restaurants, menus offered by his or her own restaurant, and a list of health conditions that are associated with recommended menus.
-3. A non-registered user can look through all tabs (the restaurants,menu and conditions tabs) without logging in. The user can find menus offered by a partiuclar restaurant, menus recommended for certain health conditions, and a list of all the menus created by all users.
-4. All users can also visit the restaurant serving a menu recommended for certain condition.
+1. A user will authenticate the app usage by either facebook or google+ authentication.
+   The user will also fetch a pin from the imgur site after running finalProject.py to
+   upload image at imgur and populate the image property of menuitem in the database.
+2. A logged-in user can create, edit, and delete restaurants, the menus offered by his
+   or her own restaurant, and a list of health conditions that couple with recommended
+   menus.
+3. A non-registered user can look through the restaurants, menu and conditions tabs without
+   logging in. The user can find menus offered by a partiuclar restaurant, menus
+   recommended for certain health conditions, and a list of all the menus created by all
+   users.
 
 Endpoints of My Application, APPLICATION_NAME = "Therapeutic Foods"
 
-album_title = 'therapeutic menus' # album the user creates at imgur when uploading image for menu
+album_title = 'therapeutic menus' # album the user creates at imgur when uploading image
 
 A decorator is a function that returns a function.
 def login_required(f):
