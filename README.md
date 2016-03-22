@@ -6,9 +6,10 @@ How to Run the Application
 1. At a directory, 'git clone {my project git url}',
 2. cd to the project directory, run 'vagrant init ubuntu/trusty32'
 3. At the project directory, run 'vagrant up', then 'vagrant ssh'
-4. Inside vagrant: cd /vagrant/FoodsTherapy; run 'python finalProject.py'; follow the vm
-   prompt to fetch the pin from imgur.com and enter it at the vm prompt; Further follow
-   the direction of the vagrant VM and open the browser at address: localhost:5000.
+4. Inside vagrant: cd /vagrant/FoodsTherapy; at the master branch, run 'python
+   finalProject.py'; follow the vm prompt to fetch the pin from imgur.com and enter it
+   at the vm prompt; Further follow the direction of the vagrant VM and open the browser
+   at address: localhost:5000.
 5. To start with a clean database, do the following inside vagrant at /vagrant/Foods
    Therapy:
   - python database_setup.py
