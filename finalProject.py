@@ -184,9 +184,13 @@ def upload_and_populate_image(menu, client, album_id, image_name, image_path):
     session.commit()
 
 
+# @app.errorhandler(404)
+# def page_not_found(e):
+#     return render_template("404.html"), 404
+
 @app.errorhandler(404)
-def page_not_found(e):
-    return render_template("404.html"), 404
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @app.route('/login/')
@@ -436,7 +440,7 @@ def showRestaurants():
                 restaurants=restaurants, user=owner)
     except IOError as err:
         # return redirect(url_for(page_not_found(err))
-            return 'restaurants not created', 404
+        return 'restaurants not created', 404
     # finally:
     #     flash("This page will show all my restaurants", "message")
 
@@ -480,23 +484,27 @@ def restaurantEdit(restaurant_id):
 
 @app.route('/restaurants/<int:restaurant_id>/delete/', methods=['POST', 'GET'])
 @login_and_restauranter_required
-# @app.errorhandler(404)
+@app.errorhandler(404)
 def restaurantDelete(restaurant_id):
     """let a logged-in user delete his or her own restaurant"""
-    laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    if request.method == 'POST':
-        if(laRestaurant):
-            session.delete(laRestaurant)
-            session.commit()
-            flash('Restaurant ' + laRestaurant.name +
-                  ' has been sadly deleted...', 'message')
-            return redirect(url_for('showRestaurants'))
+    try:
+        laRestaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+        if request.method == 'POST':
+            if(laRestaurant):
+                session.delete(laRestaurant)
+                session.commit()
+                flash('Restaurant ' + laRestaurant.name +
+                      ' has been sadly deleted...', 'message')
+                return redirect(url_for('showRestaurants'))
+            else:
+                return "no such restaurant found", 404
         else:
-            return "no such restaurant found", 404
-    else:
-        return render_template(
-            'deleteRestaurant.html', restaurant_id=restaurant_id,
-            restaurant=laRestaurant)
+            return render_template(
+                'deleteRestaurant.html', restaurant_id=restaurant_id,
+                restaurant=laRestaurant)
+    except IOError as err:
+        # return redirect(url_for(page_not_found(err))
+        return 'restaurants not deleted', 404
 
 
 @app.route('/restaurants/<int:restaurant_id>/menu/JSON/')
