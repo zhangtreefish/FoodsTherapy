@@ -25,7 +25,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(25))
     email = Column(String(30), unique=True)
-    picture = Column(String(150))
+    picture = Column(String(250))
     restaurants = relationship('Restaurant', back_populates='user')
     conditions = relationship('Condition', back_populates='user')
 
