@@ -326,7 +326,7 @@ def fbconnect():
     # print app_info.to_json() # why print not working?
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
-    token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
+    # token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -335,9 +335,14 @@ def fbconnect():
     info_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     data = json.loads(h.request(info_url, 'GET')[1])
+    logging.debug('data.')
+    logging.debug(data)
+    list_name = data['name'].split(' ')
+    l_name = list_name[0].lower()
+    f_name = list_name[1].lower()
     login_session['provider'] = 'facebook'
     login_session['username'] = data['name']
-    login_session['email'] = data['email']
+    login_session['email'] = l_name + '.' + f_name +'@facebook.com' # have to make one; data['email'] is not returned from fb
     login_session['facebook_id'] = data['id']
 
     pic_url = 'https://graph.facebook.com/v2.5/me/picture?%s&redirect=0' % token
