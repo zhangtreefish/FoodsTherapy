@@ -15,7 +15,8 @@
 				  var js, fjs = d.getElementsByTagName(s)[0];
 				  if (d.getElementById(id)) return;
 				  js = d.createElement(s); js.id = id;
-				  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=511225495725100";
+				  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=1588115011511357";
+				  console.log(js.src);
 				  fjs.parentNode.insertBefore(js, fjs);
 				}(document, 'script', 'facebook-jssdk'));
 
@@ -111,7 +112,7 @@
                 // xfbml: whether XFBML tags used by social plugins are parsed; default to false
                 // cookie: a cookie is created for the session and accessible by server-side code. TODO: when is it used?
                 FB.init({
-                    appId      : '511225495725100',
+                    appId      : '1588115011511357',
                     cookie     : true,
                     xfbml      : true,
                     version    : 'v2.5'

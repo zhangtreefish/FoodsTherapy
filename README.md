@@ -6,7 +6,7 @@ How to Run the Application
 1. At a directory, 'git clone {my project git url}',
 2. cd to the project directory, run 'vagrant init ubuntu/trusty32'
 3. At the project directory, run 'vagrant up', then 'vagrant ssh'
-4. Inside vagrant: from th ecurrent (/home/vagrant) directory cd ..
+4. Inside vagrant: from the current (/home/vagrant) directory cd ..
 twice to reach the root (/), then cd vagrant/FoodsTherapy, pwd to verify /vagrant/FoodsTherapy.
 5. Inside vagrant at /vagrant/FoodsTherapy: Run in order 'python database_setup.py',
 'python manyRestaurants.py', and 'python finalProject.py'; follow the vm prompt to fetch the pin from imgur.com and enter it at the vm prompt when running finalProject.py. Upload an image when creating menuItem from the project directory, and an album titled 'therapeutic menus' containing the image will be created at imgur.
