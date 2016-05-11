@@ -63,7 +63,7 @@ def populateMenus(menus,restaurant):
                                 description=menus[i]["description"],
                                 price=menus[i]["price"],
                                 course=menus[i]["course"],
-                                image=menus[i]["image"],
+                                # image=menus[i]["image"],
                                 restaurant=restaurant)
                 session.add(menu)
             session.commit()
@@ -112,7 +112,7 @@ if session.query(Condition).filter_by(name="constipation").first() is None:
             description="kabocha brushed with coconut oil roasted to a rich texture",
             price="$3.00",
             course="vegetable",
-            image="http://i.imgur.com/71kZSj7.jpg", #can set the image here
+            # image="http://i.imgur.com/71kZSj7.jpg", #can set the image here
             restaurant=mySecondRestaurant)
     constipation.suggested_menus.append(kabocha)
     session.add(constipation)

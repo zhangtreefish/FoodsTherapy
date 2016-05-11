@@ -25,7 +25,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(25))
     email = Column(String(30), unique=True)
-    picture = Column(String(150))
+    picture = Column(String(250))
     restaurants = relationship('Restaurant', back_populates='user')
     conditions = relationship('Condition', back_populates='user')
 
@@ -84,7 +84,6 @@ class MenuItem(Base):
     id = Column(Integer, primary_key=True)
     description = Column(String(250))
     price = Column(String(8))
-    image = Column(String(250))
     course = Column(String(250))
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'),
                            nullable=False)
@@ -100,9 +99,7 @@ class MenuItem(Base):
                 'description': self.description,
                 'price': self.price,
                 'id': self.id,
-                'image': self.image,
-                'restaurant_id': self.restaurant_id,
-                # 'restaurant':self.restaurant:restaurant is not serializable
+                'restaurant_id': self.restaurant_id
                 }
 
 # an alternative way of adding relationship:
@@ -112,5 +109,5 @@ class MenuItem(Base):
 # create an instance of Engine to be connected to SQLite database
 # issue CREATE statements for all tables using MetaData object created during
 # declarative_base()
-engine = create_engine('postgresql://grader:ji1qi4@localhost/food_three')
+engine = create_engine('postgresql://grader:ji1qi4@localhost/food_no_img')
 Base.metadata.create_all(engine)

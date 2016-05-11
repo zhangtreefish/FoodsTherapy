@@ -18,7 +18,7 @@ from xml.etree.ElementTree import Element, SubElement
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 from os import linesep
-from auth import authenticate
+# from auth import authenticate
 from datetime import datetime
 
 
@@ -36,9 +36,9 @@ G_CLIENT_ID = json.loads(
 
 APPLICATION_NAME = "Therapeutic Foods Planner"
 
-album_title = 'therapeutic menus' # can not specify album_id
+# album_title = 'therapeutic menus' # can not specify album_id
 # client = authenticate()
-
+# album_id = 'loHqJ'
 
 def create_album(client, album_title):
     """create an album for registered user in imgur.com"""
@@ -326,7 +326,7 @@ def fbconnect():
     # print app_info.to_json() # why print not working?
     app_id = app_info['web']['app_id']
     app_secret = app_info['web']['app_secret']
-    token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
+    # token_url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -335,9 +335,14 @@ def fbconnect():
     info_url = 'https://graph.facebook.com/v2.5/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     data = json.loads(h.request(info_url, 'GET')[1])
+    logging.debug('data.')
+    logging.debug(data)
+    list_name = data['name'].split(' ')
+    l_name = list_name[0].lower()
+    f_name = list_name[1].lower()
     login_session['provider'] = 'facebook'
     login_session['username'] = data['name']
-    login_session['email'] = data['email']
+    login_session['email'] = l_name + '.' + f_name +'@facebook.com' # have to make one; data['email'] is not returned from fb
     login_session['facebook_id'] = data['id']
 
     pic_url = 'https://graph.facebook.com/v2.5/me/picture?%s&redirect=0' % token
@@ -565,10 +570,7 @@ def newMenu(restaurant_id):
         myNewMenu.conditions.append(myNewCondition)
         session.add(myNewMenu)
         session.commit()
-        logging.debug(request.form['newImage'])
-        upload_and_populate_image(
-            myNewMenu, client, album_id, request.form['newName'],
-            request.form['newImage'])
+        # logging.debug(request.form['newImage'])
         flash('New menu ' + myNewMenu.name + ' has been created!', 'message')
         flash('New condition ' + myNewCondition.name + ' has been created!',
               'message')
@@ -590,9 +592,6 @@ def editMenu(restaurant_id, menu_id):
         laMenu.course = request.form['newCourse']
         laMenu.description = request.form['newDescription']
         laMenu.price = request.form['newPrice']
-        upload_and_populate_image(
-            laMenu, client, album_id, request.form['newName'],
-            request.form['newImage'])
         session.add(laMenu)
         session.commit()
         flash('The menu ' + laMenu.name + ' has been edited!', 'message')
@@ -739,8 +738,6 @@ def newConditionMenu(condition_id):
         newConditionMenu.conditions.append(condition)
         session.add(newConditionMenu)
         session.commit()
-        upload_and_populate_image(newConditionMenu, client, album_id,
-            request.form['newName'], request.form['newImage'])
         flash('New menu ' + newConditionMenu.name+' has been created!',
               'message')
         return redirect(url_for('conditionMenus', condition_id=condition_id))
@@ -763,8 +760,8 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     logger.debug('often makes a very good meal of %s', 'visiting tourists')
     # set up album
-    client = authenticate()
-    album_id = create_album(client, album_title)
+    # client = authenticate()
+    # album_id = create_album(client, album_title)
 
     app.secret_key = 'super_secret_key'
     # TODO: set to False before deployment: enable debug so the server
