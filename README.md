@@ -23,3 +23,5 @@ twice to reach the root (/), then cd vagrant/FoodsTherapy, pwd to verify /vagran
 # Prospects for Collaboration
 -- All users are encouraged to recommend favorite restaurants to be linked to this app.
 
+## References
+1. [Setting up a Python3 `virtualenv` in Vagrant](http://gnperdue.github.io/vagrant/python/virtualenv/2016/01/22/setting-up-python3-in-vagrant.html)
