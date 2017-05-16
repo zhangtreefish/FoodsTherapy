@@ -18,7 +18,7 @@ at http://ec2-34-208-105-239.us-west-2.compute.amazonaws.com/
   - python finalProject.py; follow the vm prompt to fetch the pin as in step 4 above.
 6. When creating menuItem, upload the image from the project directory.
 
-Features of My Application
+## Features of My Application
 1. A user will authenticate the app usage by either facebook or google+ authentication.
    The user will also fetch a pin from the imgur site after running finalProject.py to
    upload image at imgur and populate the image property of menuitem in the database.
@@ -30,7 +30,7 @@ Features of My Application
    recommended for certain health conditions, and a list of all the menus created by all
    users.
 
-Endpoints of My Application, APPLICATION_NAME = "Therapeutic Foods"
+## Endpoints of My Application, APPLICATION_NAME = "Therapeutic Foods"
 
 album_title = 'therapeutic menus' # album the user creates at imgur when uploading image
 
